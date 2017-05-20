@@ -7,7 +7,29 @@
 \begin{document}
 
 \maketitle
+\tableofcontents
+\newpage
 
 \section{May 20, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item set up github for project
+  \item plotted histograms of first trials
+  \item plotted scatter plots of first trials (for stationarity)
+\end{itemize}
+
+\subsection{Statistical Model}
+Recall that our model of the process is
+\[
+  X = \sum_{j=1}^N X_j,\qquad Y_j = \Bernoulli(p_j),\qquad X_j =
+  \begin{cases}
+    N(\mu_j,\sigma_j^2) & Y_j = 1 \\
+    0 & Y_j = 0
+  \end{cases}
+\]
+where $N, \mu_j, \sigma_j^2, p_j$ are all unknown parameters of the model. The $X_j$ random variable models the response amplitude of a single contact of which there are $N$, and the $Y_j$ random variable models the release success of a single contact. The additivity of the potential is justified by Petterson and Einevoll \cite{pettersen2008amplitude}. Note
+
+\bibliography{citations}
+\bibliographystyle{plain}
 
 \end{document}
