@@ -21,13 +21,52 @@
 \subsection{Statistical Model}
 Recall that our model of the process is
 \[
-  X = \sum_{j=1}^N X_j,\qquad Y_j = \Bernoulli(p_j),\qquad X_j =
-  \begin{cases}
-    N(\mu_j,\sigma_j^2) & Y_j = 1 \\
-    0 & Y_j = 0
-  \end{cases}
+  X = \sum_{j=1}^N X_j,\qquad Y_j = \Bernoulli(p_j),\qquad (X_j\mid Y_j = 1)\sim N(\mu_j,\sigma_j^2), \qquad (X_j\mid Y_j = 0) = 0
 \]
-where $N, \mu_j, \sigma_j^2, p_j$ are all unknown parameters of the model. The $X_j$ random variable models the response amplitude of a single contact of which there are $N$, and the $Y_j$ random variable models the release success of a single contact. The additivity of the potential is justified by Petterson and Einevoll \cite{pettersen2008amplitude}. Note
+where $N, \mu_j, \sigma_j^2, p_j$ are all unknown parameters of the model. The $X_j$ random variable models the response amplitude of a single contact of which there are $N$, and the $Y_j$ random variable models the release success of a single contact. We assume that all of the $X_j$ and the $Y_j$ are independent.
+
+\subsubsection{Justification}
+The additivity of the potential is justified by Petterson and Einevoll \cite{pettersen2008amplitude}. The use of a Gaussian distribution for individual contacts is justified by Magee and Cook \cite{magee2000somatic}.
+
+\section{May 22, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item derived point estimates for release probability, mean response amplitude, and response amplitude variance under the constant parameter models
+\end{itemize}
+
+\subsection{Point Estimation of Model Parameters}
+\subsubsection{Estimations Under a Simplified Model}
+We have that the expectation of the model is
+\[
+  \mathbb E[X] = \sum_{j=1}^N \mathbb E[X_j] = \sum_{j=1}^N \mu_j\cdot p_j
+\]
+and that the variance is
+\[
+  \Var[X] = \sum_{j=1}^N \Var[X_j] = \sum_{j=1}^N \sigma_j^2\cdot p_j.
+\]
+Also note that the failure rate of the model, i.e.\ the probability that all $N$ contacts fail to release, can be approximated by
+\[
+  \mathbb P[X = 0]\approx \prod_{j=1}^N (1-p_j)
+\]
+by assuming that a contact produces a positive response everytime it succeeds in releasing a vesicle. Thus, with simplifying assumptions that all the $\mu_j$, $\sigma_j^2$, and $p_j$ are the same across the $N$ points of contact, and by fixing a value of $N$, we may find a plugin estimator for $\hat p$ and method of moments estimators for $\hat\mu$ and $\hat\sigma^2$ that depend on $\hat p$. If we let $\overline X$ be the sample mean, $S^2$ be the sample variance, and $p_f$ be the sample failure rate, these estimates are given by
+\[
+  \hat p = 1 - \sqrt[N]{p_f}, \qquad \hat\mu = \frac{\overline X}{N\hat p}, \qquad \hat\sigma^2 = \frac{S^2}{N\hat p}.
+\]
+
+\subsubsection{EM Algorithm}
+Let us return to the general case. Suppose that we treat the response amplitudes of the individual contacts, the $X_j$ from $1\leq j\leq N$, as latent variables. Then, the joint distribution of the latent and observed variables will be an exponential family, so EM algorithm should work very well.
+
+\section{May 23, 2017}
+\subsection{Goals}
+\begin{itemize}
+  \item how was the data collected? can we really justify our model?
+  \item workout details of EM and implement
+\end{itemize}
+
+\subsection{Progress}
+\begin{itemize}
+  \item 
+\end{itemize}
 
 \bibliography{citations}
 \bibliographystyle{plain}
