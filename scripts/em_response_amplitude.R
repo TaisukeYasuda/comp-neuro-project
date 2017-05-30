@@ -241,7 +241,7 @@ EMResponseAmplitude <- function(x, N, opts) {
     curr.theta <- InitializeEM(x.mean, x.var, x.fail.rate, N)
     for (l in 1:opts$em.iter) {
       # Expectation step
-      all.Q.i = apply(array(x.data), 1, Q)
+      all.Q.i <- apply(array(x.data), 1, Q)
       # Maximization step
     }
   }
