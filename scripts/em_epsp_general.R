@@ -3,26 +3,12 @@
 # This file implements the EM algorithm for inferring the mu.j, sigma.j^2, and
 # the p.j of the response amplitude model. 
 
-# Helper functions for the main routine, EMResponse Amplitude
+setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
+source("./scripts/em_epsp_help.R")
 
-PopulateIfNull <- function(opts, field, default) {
-  # Populates the opts field with a default value if not present
-  #
-  # Args:
-  #   opts: The list to populate the field.
-  #   field: The field to populate.
-  #   default: The default value to populate when the field is NULL. 
-  # 
-  # Returns:
-  #   opts: The modified list with the field populated. 
-  
-  if (is.null(opts[field])) {
-    opts[field] <- default
-  }
-  return(opts)
-}
+# Helper functions for the main routine, EMResponseAmplitude
 
-InitializeEM <- function(x.mean, x.var, x.fail.rate, N) {
+InitEMGeneral <- function(x.mean, x.var, x.fail.rate, N) {
   # Provides a randomly generated initialization to the EM algorithm MLE 
   # estimates using the sample mean, sample variance, and the failure rate of 
   # the data. 
@@ -111,29 +97,6 @@ sigma.z <- function(z, theta, N) {
   }))
 }
 
-BernoulliAssignments <- function(N) {
-  # Returns {0,1}^N as a list of lists.
-  #
-  # Args:
-  #   N: The number of assumed synaptic contact points. 
-  #
-  # Returns:
-  #   z.N: {0,1}^N as a list of lists. 
-  if (N <= 1) {
-    return(c(0,1))
-  }
-  z.N <- NULL
-  z.N.prev <- BernoulliAssignments(N-1)
-  i <- 1
-  for (z in z.N.prev) {
-    z.N[i] <- list(c(z, 0))
-    i <- i + 1
-    z.N[i] <- list(c(z, 1))
-    i <- i + 1
-  }
-  return(z.N)
-}
-
 p <- function(x.i, z, theta, N) {
   # Returns the joint distribution of the data and assignments of the Bernoulli
   # variables, given the parameter estimates theta, evaluated at the point 
@@ -173,6 +136,27 @@ Q <- function(x.i, theta, N) {
   return(Q.i)
 }
 
+GradientDescent <- function(x.data, theta, all.Q.i, precision, iter, step) {
+  # Computes the argmax mu.j and sigma.j for the maximization step of the EM
+  # algorithm. 
+  #
+  # Args: 
+  #   x.data: The n data points. 
+  #   theta: Current parameter estimates. 
+  #   all.Q.i: A vector containing all the Q.i functions.
+  #   precision: The threshold for determining convergence of the gradient
+  #     descent algorithm. 
+  #   iter: The maximum number of iterations allowed for the gradient descent
+  #     algorithm. 
+  #   step: The step size of the gradient descent algorithm. 
+  #
+  # Returns:
+  #   theta: The updated estimates of mu.j and sigma.j determined numerically
+  #     by gradient descent. 
+  
+  
+}
+
 # Main routine
 
 EMResponseAmplitude <- function(x, N, opts) {
@@ -202,6 +186,7 @@ EMResponseAmplitude <- function(x, N, opts) {
   #   theta: A list of vectors containing the MLE estimates for the mu.j,
   #     sigma.j^2, and p.j, respectively. The three fields can be accessed by
   #     theta$mu, theta$sigma, theta$p, respectively.
+  #   likelihood: The loglikelihood of the parameters. 
   
   # Populate options
   if (missing(opts)) {
@@ -238,7 +223,7 @@ EMResponseAmplitude <- function(x, N, opts) {
   # Repeat the algorithm opts$em.rep times and choose the best MLE estimate.
   for (k in 1:opts$em.rep) {
     # Initialization
-    curr.theta <- InitializeEM(x.mean, x.var, x.fail.rate, N)
+    curr.theta <- InitEMGeneral(x.mean, x.var, x.fail.rate, N)
     for (l in 1:opts$em.iter) {
       # Expectation step
       all.Q.i <- apply(array(x.data), 1, Q)

@@ -186,6 +186,85 @@ Once we have an estimator for the parameters of the model, we may use parametric
   \item after writing slower version of EM algorithm, write a faster version
 \end{itemize}
 
+\section{May 30, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item derive EM algorithm steps for ``binomial distribution'' model
+  \item implement draft of EM algorithm for ``binomial distribution'' model
+\end{itemize}
+
+\subsection{Goals}
+\begin{itemize}
+  \item test EM algorithm with data simulated from the generative model
+  \item justify linearity of postsynaptic integration of signals
+  \item investigate emergent properties
+  \item separate out nonzero responses from the zero responses
+  \item show that the classical binomial model does not sufficiently explain the data (figures, graphics)
+  \item investigate results of Turner and West and see if they apply
+\end{itemize}
+
+\subsection{Previous Model of EPSP Amplitudes - Binomial Distribution}
+The previous models of postsynaptic potential amplitudes are usually binomial models \cite{kuhnt1992statistical}. We would like to first show that this model does not fit our data in a satisfactory way. This model assumes that the probabilities of all of the $N$ contacts are the same and that the mean response is also all the same. Let us further suppose that the variances of the Gaussians at each contact are the same and see if we may reject this hypothesis. The insufficiency of this model is also suggested by Turner and West \cite{turner1993bayesian}, and we wish to support this view.
+
+\subsubsection{Statistical Model}
+With $N$ contacts, the model is given by
+\[
+  X = \sum_{j=1}^N Z_j,\qquad Y_j = \Bernoulli(p),\qquad (Z_j\mid Y_j = 1)\sim N(\mu,\sigma^2), \qquad (Z_j\mid Y_j = 0) = 0
+\]
+with parameters $\mu, \sigma^2, p$.
+
+\subsubsection{Method of Moments Estimator}
+Recall that
+\[
+  \mathbb E[X] = \sum_{j=1}^N \mathbb E[Z_j] = Np\mu, \qquad \Var[X] = \sum_{j=1}^N \Var[Z_j] = Np\sigma^2.
+\]
+Then if we determine $p$ via the failure rate $p_f$, we find estimates
+\[
+  \hat p = 1 - \sqrt[N]{p_f}, \qquad \hat\mu = \frac{\overline X}{N\hat p}, \qquad \hat\sigma^2 = \frac{S^2}{N\hat p},
+\]
+as before.
+
+\subsubsection{Maximum Likelihood Estimator}
+The log likelihood of the above model as a function of the parameters is given by
+\[
+  \ell(\mu,\sigma^2,p) = \sum_{i=1}^n p(x_i;\mu,\sigma^2,p) = \sum_{i=1}^n \log \sum_{z\in\{0,1\}^N} p(x_i,z;\mu,\sigma^2,p).
+\]
+As above, we must employ the EM algorithm to estimate the MLE. Under these assumptions, the E step simplifies to
+\[
+  Q_i(y) = p(y\mid x_i; \mu, \sigma^2, p) = \frac{p(x_i\mid y; \mu,\sigma^2,p)\cdot p(y;\mu,\sigma^2,p)}{\sum_{z\in\{0,1\}^N} p(x_i\mid z;\mu,\sigma^2,p)\cdot p(z;\mu,\sigma^2,p)}
+\]
+with
+\[
+  p(x_i\mid z; \mu,\sigma^2,p) = \varphi\left(x_i;N_z\mu, N_z\sigma^2\right),\qquad p(z;\mu,\sigma^2,p) = p^{N_z}(1-p)^{N-N_z} = p^{N_z} - p^N.
+\]
+where $N_z$ denotes the number of $1$s in $z\in\{0,1\}^N$. In the M step, we have now have closed form solutions to all of the parameters. We have that
+\begin{align*}
+  \frac{\partial}{\partial\mu}\ell(\theta) = \sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)\frac{-(x_i-N_z\mu)(-2N_z)}{2N_z\sigma^2} = \sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)\frac{x_i-N_z\mu}{\sigma^2} = 0
+\end{align*}
+which gives a solution of
+\[
+  \mu = \frac{\sum_{i=1}^n\sum_{z\in\{0,1\}^N}Wi Q_i(z)x_i}{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i(z)N_z} = \boxed{\frac{\sum_{i=1}^n x_i}{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)N_z}}
+\]
+for $\mu$,
+\begin{align*}
+  \frac{\partial}{\partial\sigma^2}\ell(\theta) &= \frac{\partial}{\partial\sigma^2}\sum_{i=1}^n\sum_{z\in\{0,1\}^N}Q_i^{(t)}(z)\left(-\frac{\log(2\pi N_z\sigma^2)}2 - \frac{(x_i-N_z\mu)^2}{2N_z\sigma^2}\right) \\
+  &= \sum_{i=1}^n\sum_{z\in\{0,1\}^N}Q_i^{(t)}(z)\left(-\frac1{2\sigma^2} + \frac12\left(\frac{x_i-N_z\mu}{N_z\sigma^2}\right)^2\right) = 0
+\end{align*}
+which gives a solution of
+\[
+  \sigma^2 = \frac{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)\left(\frac{x_i-N_z\mu}{N_z}\right)^2}{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)} = \boxed{\frac{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)\left(\frac{x_i-N_z\mu}{N_z}\right)^2}n}
+\]
+for $\sigma^2$, and
+\begin{align*}
+  \frac{\partial}{\partial p}\ell(\theta) &= \frac{\partial}{\partial p}\sum_{i=1}^n\sum_{z\in\{0,1\}^N}Q_i^{(t)}(z)\left(N_z\log p + (N-N_z)\log (1-p)\right) \\
+  &= \sum_{i=1}^n\sum_{z\in\{0,1\}^N}Q_i^{(t)}(z)\left(\frac{N_z}p - \frac{N-N_z}{1-p}\right) = 0
+\end{align*}
+which gives a solution of
+\[
+  p = \frac{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z) N_z}{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)N} = \boxed{\frac{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z) N_z}{Nn}}
+\]
+for $p$.
+
 \bibliography{citations}
 \bibliographystyle{plain}
 
