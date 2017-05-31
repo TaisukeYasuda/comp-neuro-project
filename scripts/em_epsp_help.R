@@ -14,7 +14,7 @@ PopulateIfNull <- function(opts, field, default) {
   # Returns:
   #   opts: The modified list with the field populated. 
   
-  if (is.null(opts[field])) {
+  if (is.null(opts[field]) || is.na(opts[field])) {
     opts[field] <- default
   }
   return(opts)

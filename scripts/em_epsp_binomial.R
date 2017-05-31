@@ -4,6 +4,7 @@
 # the "binomial distibution" model of the postsynaptic potential distribution. 
 
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
+library(functional)
 source("./scripts/em_epsp_help.R")
 
 # Helper functions for the main routine, EMBinomial
@@ -46,7 +47,7 @@ N.z <- function(z) {
   sum(z)
 }
 
-p <- function(x.i, z, theta, N) {
+JointPDF <- function(x.i, z, theta, N) {
   # Returns the joint distribution of the data and assignments of the Bernoulli
   # variables, given the parameter estimates theta, evaluated at the point 
   # (x.i, z). 
@@ -60,29 +61,27 @@ p <- function(x.i, z, theta, N) {
   # Returns:
   #   p: The joint distribution evaluated at (x.i, z).
   
-  dnorm(x.i, N.z(z)*theta$mu, N.z(z)*theta$sigma) * (p^(N.z(z)) - p^N)
+  p.x.z = dnorm(x.i, N.z(z)*theta$mu, sqrt(N.z(z)*theta$sigma))
+  p.z = theta$p^(N.z(z)) - theta$p^N
+  return(p.x.z * p.z)
 }
 
-Q <- function(x.i, theta, N) {
-  # Returns the ith Q function
+Q.i <- function(y, x.i, theta, N, z.N) {
+  # Returns the function for returning the ith Q function
   # 
   # Args: 
-  #   x.i: The ith data point. 
   #   theta: Current parameter estimates.
   #   N: The number of assumed synaptic contact points. 
   # 
   # Returns: 
-  #   Q.i: The ith Q function.
+  #   f: The function for returning the ith Q function.
   
-  z.N <- BernoulliAssignments(N)
-  Q.i <- function(y) {
-    d = 0
-    for (z in z.N) {
-      d = d + p(x.i, z, theta, N)
-    }
-    return(p(x.i, y, theta, N) / d)
+  d = 0
+  p = Curry(JointPDF, theta=theta, N=N)
+  for (z in z.N) {
+    d = d + p(x.i, z)
   }
-  return(Q.i)
+  return(p(x.i, y) / d)
 }
 
 Argmax.mu <- function(x.data, all.Q.i, N) {
@@ -101,7 +100,7 @@ Argmax.mu <- function(x.data, all.Q.i, N) {
   d = 0
   for (i in 1:n) {
     for (z in z.N) {
-      d = d + all.Q.i[i](z) * N.z(z)
+      d = d + all.Q.i[[i]](z) * N.z(z)
     }
   }
   return(sum(x.data) / d)
@@ -125,7 +124,7 @@ Argmax.sigma <- function(x.data, all.Q.i, N, mu) {
   for (i in 1:n) {
     for (z in z.N) {
       x.i = x.data[i]
-      d = d + all.Q.i[i](z) * ((x.i - N.z(z) * mu) / N.z(z))^2
+      d = d + all.Q.i[[i]](z) * ((x.i - N.z(z) * mu) / N.z(z))^2
     }
   }
   return(d / n)
@@ -147,7 +146,7 @@ Argmax.p <- function(x.data, all.Q.i, N) {
   d = 0
   for (i in 1:n) {
     for (z in z.N) {
-      d = d + all.Q.i[i](z) * N.z(z)
+      d = d + all.Q.i[[i]](z) * N.z(z)
     }
   }
   return(d / (N * n))
@@ -166,7 +165,7 @@ LogLikelihood <- function(x.data, N, theta) {
   for (x.i in x.data) {
     m = 0
     for (z in z.N) {
-      m = m + p(x.i, z, theta, N)
+      m = m + JointPDF(x.i, z, theta, N)
     }
     d = d + log(m, base = exp(1))
   }
@@ -225,21 +224,23 @@ EMBinomial <- function(x, N, opts) {
     x.fail.count <- x.fail.freq[x.fail.index,"Freq"]
   }
   x.fail.rate <- x.fail.count / n
-  z.N <- BernoulliAssignments(N)
+  z.N = BernoulliAssignments(N)
   
   # Repeat the algorithm opts$em.rep times and choose the best MLE estimate.
-  for (k in 1:opts$em.rep) {
+  for (k in 1:opts["em.rep"]) {
     # Initialization
     curr.theta <- InitEMBinomial(x.mean, x.var, x.fail.rate, N)
-    for (l in 1:opts$em.iter) {
+    for (l in 1:opts["em.iter"]) {
       # Expectation step
-      all.Q.i <- apply(array(x.data), 1, Q)
+      all.Q.i <- apply(array(x.data), 1, function(x.i) {
+        Curry(Q.i, x.i=x.i, theta=curr.theta, N=N, z.N=z.N) 
+      })
       # Maximization step
       curr.theta$mu = Argmax.mu(x.data, all.Q.i, N)
       curr.theta$sigma = Argmax.sigma(x.data, all.Q.i, N, curr.theta$mu)
       curr.theta$p = Argmax.p(x.data, all.Q.i, N)
       curr.likelihood = LogLikelihood(x.data, N, curr.theta)
-      if (abs(curr.likelihood - prev.likelihood) < opts$em.precision) {
+      if (abs(curr.likelihood - prev.likelihood) < opts["em.precision"]) {
         break
       }
       prev.likelihood = curr.likelihood

@@ -191,6 +191,7 @@ Once we have an estimator for the parameters of the model, we may use parametric
 \begin{itemize}
   \item derive EM algorithm steps for ``binomial distribution'' model
   \item implement draft of EM algorithm for ``binomial distribution'' model
+  \item test EM algorithm, realize that we need to handle the $z = (0,0,\dots,0)$ case separately
 \end{itemize}
 
 \subsection{Goals}
@@ -201,6 +202,8 @@ Once we have an estimator for the parameters of the model, we may use parametric
   \item separate out nonzero responses from the zero responses
   \item show that the classical binomial model does not sufficiently explain the data (figures, graphics)
   \item investigate results of Turner and West and see if they apply
+  \item also try model that keeps $\sigma^2$ constant, and derive the EM algorithm for it
+  \item study Kolmogorov-Smirnov test for testing the equality of the distributions
 \end{itemize}
 
 \subsection{Previous Model of EPSP Amplitudes - Binomial Distribution}
@@ -243,7 +246,7 @@ where $N_z$ denotes the number of $1$s in $z\in\{0,1\}^N$. In the M step, we hav
 \end{align*}
 which gives a solution of
 \[
-  \mu = \frac{\sum_{i=1}^n\sum_{z\in\{0,1\}^N}Wi Q_i(z)x_i}{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i(z)N_z} = \boxed{\frac{\sum_{i=1}^n x_i}{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)N_z}}
+  \mu = \frac{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i(z)x_i}{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i(z)N_z} = \boxed{\frac{\sum_{i=1}^n x_i}{\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)N_z}}
 \]
 for $\mu$,
 \begin{align*}
