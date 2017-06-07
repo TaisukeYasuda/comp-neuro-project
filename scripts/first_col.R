@@ -1,6 +1,6 @@
 # Taisuke Yasuda
 #
-# Plots and saves the histogram of the first trials of the epsp data.
+# This script extracts the first column of the data. 
 
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 source("./scripts/filenames.R")
@@ -12,11 +12,6 @@ for (i in 1:length(file.names)) {
   fileroot <- FileRoot(filename)
   file <- read.csv(file=paste("data/epsp-data/", filename, sep=""),
                    header=TRUE, sep=",")
-  pdf(paste("plots/histogram-first-col/", fileroot, ".pdf", sep=""))
-  hist(unlist(file[2]),
-       main=paste("Histogram of First Spike of", fileroot),
-       xlab="Amplitude (mV)",
-       ylab="Frequency")
-  dev.off()
+  write.csv(file[2], paste("data/epsp-data-first-col/", fileroot, 
+                           "-first-col.csv", sep=""))
 }
-

@@ -268,6 +268,85 @@ which gives a solution of
 \]
 for $p$.
 
+\subsubsection{Removing Zeros}
+The above algorithms for EM in fact do not work, since they assign infinite probabilities to the $0$s when they are assigned to the all failure case. Thus, we must implement the algorithm on the nonzero values. In this case, the $z$ are drawn from $S := \{0,1\}^N\setminus \{(0,\dots,0)\}$ uniformly, and each $z\in S$ is drawn with probability
+\[
+  \frac1{1-\prod_{j=1}^N(1-p_j)}\prod_{j:z_j=1}p_j\prod_{j:z_j=0}(1-p_j).
+\]
+In the case of the binomial distribution model, the partial with respect to $p$ then turns out to be
+\begin{align*}
+  \frac{\partial}{\partial p_l}\ell(\theta) &= \frac{\partial}{\partial p_l}\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)\log p_z \\
+  &= \frac{\partial}{\partial p_l}\sum_{i=1}^n\sum_{z\in\{0,1\}^N} Q_i^{(t)}(z)\left(\sum_{j:z_j=1}\log p_j + \sum_{j:z_j=0}\log(1-p_j) - \log \left(1-\prod_{j=1}^N(1-p_j)\right)\right)
+\end{align*}
+
+\section{May 31, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item start making visualizations for MOME estimators
+\end{itemize}
+
+\subsection{Goals}
+\begin{itemize}
+  \item get more data!
+\end{itemize}
+
+\section{June 1, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item clear up problems on current approaches (lognormal distribution, lack of data)
+\end{itemize}
+
+\subsection{Goals}
+\begin{itemize}
+  \item explore other distributions for the postsynaptic response at each synaptic contact
+  \item use lognormal distribution at each contact instead of normal distribution
+\end{itemize}
+
+\subsection{Meeting with Professor Barth and Professor Brasier}
+The immediate goal at the moment is to do the first figures of the paper, e.g.\ the statement of the problem, why this small data set is enough to suspect that a simple binomial model will not suffice to explain the data.
+\begin{itemize}
+  \item failure rates of the trials, analysis with simple binomial model
+  \item traces of the data
+  \item aggregate results
+\end{itemize}
+
+
+\section{June 3, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item found IGOR file parser \url{https://www.rdocumentation.org/packages/IgorR}, plotted wave files with it
+\end{itemize}
+
+\subsection{Goals}
+\begin{itemize}
+  \item view IGOR files on R
+  \item ggplot histograms of the data, whole and first col
+  \item failure rates of the columns (trials)
+  \item plot failure rates of the columns as a function of the trials
+  \item estimate probabilities of the highest amplitudes using binomial model, Markov, and Chebyshev
+  \item awesome legends in the plots please (toggle with true/false options)
+  \item plotting aggregate data
+  \begin{itemize}
+    \item other ways to represent the whole data set
+  \end{itemize}
+\end{itemize}
+
+\subsection{Parsing IGOR files with R}
+Use the \texttt{IgorR} package for reading the \texttt{pxp} files. Read the file with \texttt{read.pxp} and find the appropriate wave data. Then, convert to a \texttt{ts} object via \texttt{WaveToTimeSeries}. Finally, to plot with \texttt{ggplot2}, turn it into a data frame via \texttt{data.frame(Y = as.matrix(sweep1), t = time(sweep1))}.
+
+\section{June 5, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item ggplot histograms, first col and all
+  \item plot failure rates, individually and aggregate
+\end{itemize}
+
+\section{June 6, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item
+\end{itemize}
+
 \bibliography{citations}
 \bibliographystyle{plain}
 

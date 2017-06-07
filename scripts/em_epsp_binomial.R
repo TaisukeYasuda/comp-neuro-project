@@ -6,6 +6,7 @@
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 library(functional)
 source("./scripts/em_epsp_help.R")
+source("./scripts/epsp_binomial.R")
 
 # Helper functions for the main routine, EMBinomial
 

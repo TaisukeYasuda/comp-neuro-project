@@ -1,0 +1,179 @@
+# Taisuke Yasuda
+#
+# This file implements useful functions for statistical analysis of the
+# postsynaptic potential distribution under the "binomial distribution" model. 
+
+setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
+library(ggplot2)
+library(functional)
+source("./scripts/filenames.R")
+
+SampleFailureRate <- function(x.data) {
+  # Computes the sample failure rate of the sample. 
+  # 
+  # Args:
+  #   x.data: The n data points.
+  # 
+  # Returns:
+  #   r: The sample failure rate. 
+  
+  n = length(x.data)
+  x.fail.freq <- as.data.frame(table(x.data))
+  x.fail.index <- which(x.fail.freq["x.data"] == 0)
+  x.fail.count <- 0
+  if (is.na(x.fail.index)) {
+    x.fail.index <- -1
+    x.fail.count <- 0
+  } else {
+    x.fail.count <- x.fail.freq[x.fail.index,"Freq"]
+  }
+  return(x.fail.count / n)
+}
+
+MOME.p <- function(p.fail, N) {
+  # Returns the plug-in estimator for p using the failure rate. 
+  # 
+  # Args:
+  #   p.fail: The failure rate of the data.
+  #   N: The number of assumed synaptic contact points. 
+  #
+  # Returns:
+  #   p: The plug-in estimator for p using the failure rate. 
+  1 - p.fail^(1/N)
+}
+
+MOME.mu <- function(x.data, N, p) {
+  # Returns the method of moments estimator for mu. 
+  #
+  # Args: 
+  #   x.data: The n data points. 
+  #   N: The number of assumed synaptic contact points. 
+  #   p: An estimator for p. 
+  mean(unlist(x.data)) / (N * p)
+}
+
+MOME.sigma <- function(x.data, N, p) {
+  # Returns the method of moments estimator for sigma. 
+  #
+  # Args: 
+  #   x.data: The n data points. 
+  #   N: The number of assumed synaptic contact points. 
+  #   p: An estimator for p. 
+  var(unlist(x.data)) / (N * p)
+}
+
+EPSP.Binomial <- function(mu, sigma, p, N, n) {
+  # Samples n data points from an EPSP model with parameters mu, sigma, p, and
+  # N. 
+  # 
+  # Args:
+  #   mu: The mean amplitude for each of the synaptic contacts.
+  #   sigma: The variance for each of the synaptic contacts. 
+  #   p: The release probability for each of the synaptic contacts.
+  #   N: The number of synaptic contacts. 
+  #   n: The number of points to sample. 
+  # 
+  # Returns:
+  #   X: The vector of points sampled from the binomial model. 
+  
+  SingleTrial <- function(dummy) {
+    Y = rbinom(N, 1, p)
+    NormalIfRelease <- function(y) {
+      if (y==1) {
+        return(rnorm(1, mu, sqrt(sigma)))
+      } else {
+        return(0)
+      }
+    }
+    return(sum(apply(array(Y), 1, NormalIfRelease)))
+  }
+  X = rep(0, n)
+  return(apply(array(X), 1, SingleTrial))
+}
+
+BernoulliAssignments <- function(N) {
+  # Returns {0,1}^N as a list of lists.
+  #
+  # Args:
+  #   N: The number of assumed synaptic contact points. 
+  #
+  # Returns:
+  #   z.N: {0,1}^N as a list of lists. 
+  if (N <= 1) {
+    return(c(0,1))
+  }
+  z.N <- NULL
+  z.N.prev <- BernoulliAssignments(N-1)
+  i <- 1
+  for (z in z.N.prev) {
+    z.N[i] <- list(c(z, 0))
+    i <- i + 1
+    z.N[i] <- list(c(z, 1))
+    i <- i + 1
+  }
+  return(z.N)
+}
+
+JointPDF <- function(x.i, z, theta, N) {
+  # Returns the joint distribution of the data and assignments of the Bernoulli
+  # variables, given the parameter estimates theta, evaluated at the point 
+  # (x.i, z). 
+  # 
+  # Args:
+  #   x.i: The ith data point.
+  #   z: Assignments of the Bernoulli variables as a {0,1} list of length N.
+  #   theta: Current parameter estimates.
+  #   N: The number of assumed synaptic contact points. 
+  # 
+  # Returns:
+  #   p: The joint distribution evaluated at (x.i, z).
+  
+  p.x.z = dlnorm(x.i, N.z(z)*theta$mu, sqrt(N.z(z)*theta$sigma))
+  p.z = theta$p^(N.z(z)) - theta$p^N
+  return(p.x.z * p.z)
+}
+
+EPSP.Likelihood.Binomial <- function(x, mu, sigma, p, N) {
+  # Returns the distribution over x of 
+}
+
+EPSP.QQ.Binomial <- function(x, filename, mu, sigma, p, N, reps=500) {
+  # Plots the QQ plot for the binomial at the given filename. 
+  # 
+  # Args:
+  #   x: The n data points. 
+  #   filename: The filename for the QQ plot. 
+  #   mu: The mean amplitude for each of the synaptic contacts.
+  #   sigma: The variance for each of the synaptic contacts. 
+  #   p: The release probability for each of the synaptic contacts.
+  #   N: The number of synaptic contacts. 
+  #
+  # Returns:
+  #   data: The sampled data along with the quantiles and the original data.  
+  
+  n <- length(x)
+  data = list()
+  for (k in 1:reps) {
+    data[[k]] = sort(EPSP.Binomial(mu, sigma, p, N, n))
+  }
+  data = data.frame(data)
+  SampleName <- Curry(IndexedName, name="sample")
+  names(data) = apply(array(c(1:reps)), 1, SampleName)
+  
+  # Compute quantiles of the aggregate data
+  q = quantile(unlist(data), probs = c(1:n) / (n + 1))
+  x = sort(x)
+  data[["quantiles"]] = q
+  data[["data"]] = x
+  
+  # Create QQ plot
+  plot <- ggplot(data, aes(x=quantiles))
+  for (k in 1:reps) {
+    plot <- plot + geom_point(aes_string(y=SampleName(k)), color="steelblue")
+  }
+  plot <- plot + geom_line(aes(y=quantiles))
+  plot <- plot + geom_point(aes(y=data), color="red")
+  cat("\tsaving to", filename, "\n")
+  ggsave(filename)
+  return(data)
+}
