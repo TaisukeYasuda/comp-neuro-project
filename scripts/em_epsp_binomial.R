@@ -36,37 +36,6 @@ InitEMBinomial <- function(x.mean, x.var, x.fail.rate, N) {
   return(theta0)
 }
 
-N.z <- function(z) {
-  # The number of z.j such that z.j = 1. 
-  #
-  # Args: 
-  #   z: Assignments of the Bernoulli variables as a {0,1} list of length N.
-  # 
-  # Returns: 
-  #   N.z: The number of z.j such that z.j = 1.
-  
-  sum(z)
-}
-
-JointPDF <- function(x.i, z, theta, N) {
-  # Returns the joint distribution of the data and assignments of the Bernoulli
-  # variables, given the parameter estimates theta, evaluated at the point 
-  # (x.i, z). 
-  # 
-  # Args:
-  #   x.i: The ith data point.
-  #   z: Assignments of the Bernoulli variables as a {0,1} list of length N.
-  #   theta: Current parameter estimates.
-  #   N: The number of assumed synaptic contact points. 
-  # 
-  # Returns:
-  #   p: The joint distribution evaluated at (x.i, z).
-  
-  p.x.z = dnorm(x.i, N.z(z)*theta$mu, sqrt(N.z(z)*theta$sigma))
-  p.z = theta$p^(N.z(z)) - theta$p^N
-  return(p.x.z * p.z)
-}
-
 Q.i <- function(y, x.i, theta, N, z.N) {
   # Returns the function for returning the ith Q function
   # 

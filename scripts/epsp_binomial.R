@@ -21,7 +21,7 @@ SampleFailureRate <- function(x.data) {
   x.fail.freq <- as.data.frame(table(x.data))
   x.fail.index <- which(x.fail.freq["x.data"] == 0)
   x.fail.count <- 0
-  if (is.na(x.fail.index)) {
+  if (length(x.fail.index) == 0 || is.na(x.fail.index)) {
     x.fail.index <- -1
     x.fail.count <- 0
   } else {
@@ -30,65 +30,58 @@ SampleFailureRate <- function(x.data) {
   return(x.fail.count / n)
 }
 
-MOME.p <- function(p.fail, N) {
-  # Returns the plug-in estimator for p using the failure rate. 
-  # 
-  # Args:
-  #   p.fail: The failure rate of the data.
+MOME.Binomial <- function(x.data, N, p) {
+  # Returns the method of moments estimate for the parameters of the model. 
+  #
+  # Args: 
+  #   x.data: The n data points. 
   #   N: The number of assumed synaptic contact points. 
+  #   p: An estimator for p. 
   #
   # Returns:
-  #   p: The plug-in estimator for p using the failure rate. 
-  1 - p.fail^(1/N)
+  #   theta: The method of moments estimate with estimates contained in
+  #     theta$mu, theta$sigma, and theta$p. 
+  
+  theta = list()
+  # Estimate p
+  p.fail <- SampleFailureRate(x.data)
+  theta$p <- 1 - p.fail^(1/N)
+  # Useful constants
+  a <- var(x.data) / (N * theta$p)
+  b <- mean(x.data) / (N * theta$p)
+  c <- 0.5 * log(a + b^2)
+  d <- 2 * log(b)
+  # Estimate mu and sigma
+  theta$mu <- d - c
+  theta$sigma <- 2*c - d
+  return(theta)
 }
 
-MOME.mu <- function(x.data, N, p) {
-  # Returns the method of moments estimator for mu. 
-  #
-  # Args: 
-  #   x.data: The n data points. 
-  #   N: The number of assumed synaptic contact points. 
-  #   p: An estimator for p. 
-  mean(unlist(x.data)) / (N * p)
-}
-
-MOME.sigma <- function(x.data, N, p) {
-  # Returns the method of moments estimator for sigma. 
-  #
-  # Args: 
-  #   x.data: The n data points. 
-  #   N: The number of assumed synaptic contact points. 
-  #   p: An estimator for p. 
-  var(unlist(x.data)) / (N * p)
-}
-
-EPSP.Binomial <- function(mu, sigma, p, N, n) {
+EPSP.Binomial <- function(theta, N, n) {
   # Samples n data points from an EPSP model with parameters mu, sigma, p, and
   # N. 
   # 
   # Args:
-  #   mu: The mean amplitude for each of the synaptic contacts.
-  #   sigma: The variance for each of the synaptic contacts. 
-  #   p: The release probability for each of the synaptic contacts.
+  #   theta: Current parameter estimates. 
   #   N: The number of synaptic contacts. 
   #   n: The number of points to sample. 
   # 
   # Returns:
-  #   X: The vector of points sampled from the binomial model. 
+  #   x: The vector of points sampled from the binomial model. 
   
   SingleTrial <- function(dummy) {
-    Y = rbinom(N, 1, p)
+    Y = rbinom(N, 1, theta$p)
     NormalIfRelease <- function(y) {
       if (y==1) {
-        return(rnorm(1, mu, sqrt(sigma)))
+        return(rlnorm(1, theta$mu, sqrt(theta$sigma)))
       } else {
         return(0)
       }
     }
     return(sum(apply(array(Y), 1, NormalIfRelease)))
   }
-  X = rep(0, n)
-  return(apply(array(X), 1, SingleTrial))
+  x = rep(0, n)
+  return(apply(array(x), 1, SingleTrial))
 }
 
 BernoulliAssignments <- function(N) {
@@ -114,6 +107,18 @@ BernoulliAssignments <- function(N) {
   return(z.N)
 }
 
+N.z <- function(z) {
+  # The number of z.j such that z.j = 1. 
+  #
+  # Args: 
+  #   z: Assignments of the Bernoulli variables as a {0,1} list of length N.
+  # 
+  # Returns: 
+  #   N.z: The number of z.j such that z.j = 1.
+  
+  sum(z)
+}
+
 JointPDF <- function(x.i, z, theta, N) {
   # Returns the joint distribution of the data and assignments of the Bernoulli
   # variables, given the parameter estimates theta, evaluated at the point 
@@ -122,19 +127,15 @@ JointPDF <- function(x.i, z, theta, N) {
   # Args:
   #   x.i: The ith data point.
   #   z: Assignments of the Bernoulli variables as a {0,1} list of length N.
-  #   theta: Current parameter estimates.
+  #   theta: Current parameter estimates.  
   #   N: The number of assumed synaptic contact points. 
   # 
   # Returns:
-  #   p: The joint distribution evaluated at (x.i, z).
+  #   d: The joint distribution evaluated at (x.i, z).
   
   p.x.z = dlnorm(x.i, N.z(z)*theta$mu, sqrt(N.z(z)*theta$sigma))
   p.z = theta$p^(N.z(z)) - theta$p^N
   return(p.x.z * p.z)
-}
-
-EPSP.Likelihood.Binomial <- function(x, mu, sigma, p, N) {
-  # Returns the distribution over x of 
 }
 
 EPSP.QQ.Binomial <- function(x, filename, mu, sigma, p, N, reps=500) {
@@ -146,7 +147,7 @@ EPSP.QQ.Binomial <- function(x, filename, mu, sigma, p, N, reps=500) {
   #   mu: The mean amplitude for each of the synaptic contacts.
   #   sigma: The variance for each of the synaptic contacts. 
   #   p: The release probability for each of the synaptic contacts.
-  #   N: The number of synaptic contacts. 
+  #   N: The assumed number of synaptic contacts. 
   #
   # Returns:
   #   data: The sampled data along with the quantiles and the original data.  
@@ -176,4 +177,38 @@ EPSP.QQ.Binomial <- function(x, filename, mu, sigma, p, N, reps=500) {
   cat("\tsaving to", filename, "\n")
   ggsave(filename)
   return(data)
+}
+
+Bootstrap.CI.Binomial <- function(theta, N, n, B=1000) {
+  # Bootstraps from a model generated by parameters theta and N. From this,
+  # we determine estimates for the confidence intervals via pivot confidence
+  # intervals. 
+  #
+  # Args: 
+  #   theta: Parameter estimates.
+  #   N: The assumed number of synaptic contacts. 
+  #   n: Sample size per parameter estimate.
+  #   B: Sample size for sampling from the sampling distribution. 
+  # 
+  # Returns:
+  #   ci: The confidence interval estimates. 
+  
+  SampleEstimator <- function(dummy) {
+    # Estimate the parameters from n simulated data points. 
+    x <- EPSP.Binomial(theta, N, n)
+    return(data.frame(MOME.Binomial(x, N)))
+  }
+  PivotCI <- function(quantiles, theta.hat) {
+    # Compute pivot confidence intervals given the sample quantiles. 
+    c(2*theta.hat - quantiles[[2]], 2*theta.hat - quantiles[[1]])
+  }
+  # Repeat B times
+  sample <- apply(array(rep(0,B)), 1, SampleEstimator)
+  sample <- do.call("rbind", sample)
+  ci <- list()
+  ci$mu <- PivotCI(quantile(sample$mu, probs=c(0.025, 0.975)), theta$mu)
+  ci$sigma <- PivotCI(quantile(sample$sigma, probs=c(0.025, 0.975)), 
+                      theta$sigma)
+  ci$p <- PivotCI(quantile(sample$p, probs=c(0.025, 0.975)), theta$p)
+  return(ci)
 }

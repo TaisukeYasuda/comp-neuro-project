@@ -341,10 +341,64 @@ Use the \texttt{IgorR} package for reading the \texttt{pxp} files. Read the file
   \item plot failure rates, individually and aggregate
 \end{itemize}
 
-\section{June 6, 2017}
+\section{June 7, 2017}
 \subsection{Progress}
 \begin{itemize}
-  \item
+  \item updated parameter estimates for the compound binomial-lognormal model
+\end{itemize}
+
+\subsection{Goals}
+\begin{itemize}
+  \item check model with other predictions, such as mean, variance, and failure rate
+\end{itemize}
+
+
+\subsection{Useful Properties of the Lognormal Distribution}
+The cdf and quantile functions are given by
+\[
+  \begin{cases}
+    F(x) = \Phi\left[\frac{\log(x)-\mu}\sigma\right] \\
+    F^{-1}(p) = \exp\left[\mu + \sigma\Phi^{-1}(p)\right] & p\in(0,1)
+  \end{cases}.
+\]
+The $t$th moment is given by
+\[
+  \mathbb E\left[X^k\right] = \exp\left[\mu t + \frac{\sigma^2t^2}2\right].
+\]
+In particular, the mean and variance are given by
+\[
+  \begin{cases}
+    \mathbb E[X] = \exp\left[\mu + \frac{\sigma^2}2\right] \\
+    \Var[x] = \exp\left[2(\mu+\sigma^2)\right] - \exp\left[2\mu+\sigma^2\right]
+  \end{cases}.
+\]
+
+\subsection{Parameter Estimates for the Lognormal Model}
+Under our new model that uses the lognormal distribution, the $p$ parameter estimate can stay, but we need to fix the estimates for $\mu$ and $\sigma$. Given $N$ and $p$, we have that
+\[
+  \begin{cases}
+    \mathbb E[X] = \sum_{j=1}^N \mathbb E[Z_j] = N\exp\left[\mu + \frac{\sigma^2}2\right]p \\
+    \Var[X] = \sum_{j=1}^N \Var[Z_j] = N\left(\exp\left[2(\mu+\sigma^2)\right] - \exp\left[2\mu+\sigma^2\right]\right)p
+  \end{cases}.
+\]
+Now estimate $\mathbb E[X]$ by the sample mean $\overline X$ and $\Var[X]$ by the sample variance $S^2$. Then, after massaging, we get that the method of moments parameter estimates are
+\[
+  \begin{pmatrix}\mu\\\sigma\end{pmatrix} = \begin{pmatrix}-1&1\\2&-1\end{pmatrix}\begin{pmatrix}\frac12\log\left(\frac{S^2}{Np} + \left(\frac{\overline X}{Np}\right)^2\right)\\2\log\left(\frac{\overline X}{Np}\right)\end{pmatrix}.
+\]
+
+\section{June 8, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item constructed bootstrap pivot confidence intervals for binomial parameters estimates
+  \item plotted bootstrap results for each test
+  \item plotted bootstrap results across tests
+\end{itemize}
+
+\subsection{Goals}
+\begin{itemize}
+  \item construct pivot confidence intervals for the binomial parameters
+  \item plot bootstrap results for each parameter in a separate plot
+  \item plot probability of large events
 \end{itemize}
 
 \bibliography{citations}
