@@ -369,7 +369,7 @@ In particular, the mean and variance are given by
 \[
   \begin{cases}
     \mathbb E[X] = \exp\left[\mu + \frac{\sigma^2}2\right] \\
-    \Var[x] = \exp\left[2(\mu+\sigma^2)\right] - \exp\left[2\mu+\sigma^2\right]
+    \Var[X] = \exp\left[2(\mu+\sigma^2)\right] - \exp\left[2\mu+\sigma^2\right]
   \end{cases}.
 \]
 
@@ -398,7 +398,40 @@ Now estimate $\mathbb E[X]$ by the sample mean $\overline X$ and $\Var[X]$ by th
 \begin{itemize}
   \item construct pivot confidence intervals for the binomial parameters
   \item plot bootstrap results for each parameter in a separate plot
-  \item plot probability of large events
+  \item plot probability of large events (Markov, Chebyshev)
+  \item add legends to testing plots (low priority)
+\end{itemize}
+
+\subsection{Estimating Probabilities of Large Amplitudes}
+We use the Markov and Chebyshev inequalities to bound the tail probabilities. Markov's inequality gives us that
+\[
+  \mathbb P[X\geq t]\leq \frac{\mathbb E[X]}t
+\]
+and Chebyshev's inequality gives us that
+\[
+  \mathbb P[\abs{X-\mathbb E[X]}\geq t]\leq \frac{\Var[X]}{t^2}.
+\]
+Note that both
+\[
+  \mathbb E[X] = N\exp\left[\mu + \frac{\sigma^2}2\right]p
+\]
+and
+\[
+  \Var[X] = N\left(\exp\left[2(\mu+\sigma^2)\right] - \exp\left[2\mu+\sigma^2\right]\right)p = Npe^{2\mu+\sigma^2}\left(e^{\sigma^2}-1\right)
+\]
+are increasing functions of the parameters. Thus, we may find looser estimates that have more confidence by choosing the upper bound of the confidence intervals for the parameters.
+
+\section{June 9, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item plotted upper bounds for simulations
+  \item plotted cumulative upper bounds
+\end{itemize}
+
+\subsection{Goals}
+\begin{itemize}
+  \item plot for each type of theta (actual, estimated, upper bound)
+  \item apply tests to actual data now
 \end{itemize}
 
 \bibliography{citations}
