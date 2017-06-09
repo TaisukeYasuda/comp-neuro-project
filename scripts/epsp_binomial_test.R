@@ -4,14 +4,14 @@
 
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 library(ggplot2)
-source("./scripts/epsp_binomial.R")
+source("./scripts/epsp_binomial_lib.R")
 
-tests.to.run = c(2)
+tasks.to.run = c(2)
 
 # Task 1: Testing the MOME estimates by simulating from the model and then 
 # estimating it. 
 
-if (1 %in% tests.to.run) {
+if (1 %in% tasks.to.run) {
   cat("################################################################\n")
   cat("Task 1: Sample and evaluate MOME estimates.\n")
   cat("################################################################\n\n")
@@ -261,7 +261,7 @@ if (1 %in% tests.to.run) {
 # Task 2: Using the MOME estimates to estimate the probability of seeing large
 # amplitudes. 
 
-if (2 %in% tests.to.run) {
+if (2 %in% tasks.to.run) {
   cat("################################################################\n")
   cat("Task 2: Use the MOME estimates to predict the probability of\n")
   cat("large events.\n")
