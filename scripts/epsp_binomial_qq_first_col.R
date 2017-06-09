@@ -4,7 +4,7 @@
 
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 source("./scripts/filenames.R")
-source("./scripts/epsp_binomial.R")
+source("./scripts/epsp_binomial_lib.R")
 
 file.names <- dir("data/epsp-data-first-col/", pattern="*.csv")
 maxN = 10

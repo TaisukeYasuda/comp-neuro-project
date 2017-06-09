@@ -206,9 +206,41 @@ Bootstrap.CI.Binomial <- function(theta, N, n, B=1000) {
   sample <- apply(array(rep(0,B)), 1, SampleEstimator)
   sample <- do.call("rbind", sample)
   ci <- list()
-  ci$mu <- PivotCI(quantile(sample$mu, probs=c(0.025, 0.975)), theta$mu)
-  ci$sigma <- PivotCI(quantile(sample$sigma, probs=c(0.025, 0.975)), 
-                      theta$sigma)
-  ci$p <- PivotCI(quantile(sample$p, probs=c(0.025, 0.975)), theta$p)
+  ci$mu <- PivotCI(quantile(sample$mu, probs=c(0.025, 0.975), na.rm = TRUE), 
+                   theta$mu)
+  ci$sigma <- PivotCI(quantile(sample$sigma, probs=c(0.025, 0.975), 
+                               na.rm = TRUE), theta$sigma)
+  ci$p <- PivotCI(quantile(sample$p, probs=c(0.025, 0.975), na.rm = TRUE), 
+                  theta$p)
   return(ci)
+}
+
+Markov.Binomial <- function(t, theta, N) {
+  # Bounds on large amplitudes.
+  # 
+  # Args:
+  #   t: Amplitude to bound. 
+  #   theta: Parameters of the model. 
+  #   N: Assuemd number of synaptic contacts. 
+  #
+  # Returns:
+  #   p: Upper bound on the probability of events larger than t using Markov.
+  
+  (N * exp(theta$mu + theta$sigma^2/2) * theta$p) / t
+}
+
+Chebyshev.Binomial <- function(t, theta, N) {
+  # Bounds on large amplitudes.
+  # 
+  # Args:
+  #   t: Amplitude to bound. 
+  #   theta: Parameters of the model. 
+  #   N: Assuemd number of synaptic contacts. 
+  #
+  # Returns:
+  #   p: Upper bound on the probability of events larger than t using 
+  #     Chebyshev.
+  
+  (N * (exp(2*(theta$mu+theta$sigma^2)) - exp(2*theta$mu+theta$sigma^2)) 
+   * theta$p) / t^2
 }
