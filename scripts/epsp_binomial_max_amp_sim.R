@@ -10,14 +10,14 @@ source("./scripts/filenames.R")
 
 # Functions for executing the task
 
-MaxAmpProbability <- function(x, N, filename) {
+MaxAmpSim <- function(x, N, m, filename) {
   # Tests the MOME estimates by simulating from the model and then plotting 
-  # the probability of large amplitudes via the Markov and Chebyshev
-  # inequalities. 
+  # the probability of large amplitudes via Monte Carlo estimation. 
   # 
   # Args:
   #   x: The n data points.
   #   N: Assumed number of synaptic contacts. 
+  #   m: Number of points to sample for the Monte Carlo estimate. 
   #   filename: The filename for saving the plot. 
   #   
   #  Returns:
@@ -36,31 +36,27 @@ MaxAmpProbability <- function(x, N, filename) {
       ci$mu[2], "], [", ci$sigma[1], ", ", ci$sigma[2], "], [", 
       ci$p[1], ", ", ci$p[2], "])\n", sep="")
   cat("Maximum amplitude: ", t, "\n", sep="")
+  
+  # Monte Carlo estimate
+  sample <- EPSP.Binomial(theta.hat, N, m)
+  mc.est <- length(sample[sample >= t]) / m
+  
   # Sumarry of results
-  A = list(prob=1/n, 
-           markov.est=Markov.Binomial(t, theta.hat, N),
-           markov.upb=Markov.Binomial(t, upper, N),
-           chebyshev.est=Chebyshev.Binomial(t, theta.hat, N),
-           chebyshev.upb=Chebyshev.Binomial(t, upper, N))
+  A = list(prob=1/n, mc.est=mc.est)
   cat("Observed Probability: ", A$prob, "\n", sep="")
-  cat("Markov bound (estimator): ", A$markov.est, "\n", sep="")
-  cat("Markov bound (upper bound): ", A$markov.upb, "\n", sep="")
-  cat("Chebyshev bound (estimator): ", A$chebyshev.est, "\n", sep="")
-  cat("Chebyshev bound (upper bound): ", A$chebyshev.upb, "\n", sep="")
+  cat("Monte Carlo Estimate: ", A$mc.est, "\n", sep="")
   
   # Plot the result if filename is specified
   if (!missing(filename)) {
-    df <- data.frame(cols=c("prob", "markov.est", "markov.upb", 
-                            "chebyshev.est", "chebyshev.upb"), 
-                     type=c("emp", "est", "upb", "est", "upb"), 
+    df <- data.frame(cols=c("prob", "mc.est"), 
                      val=unlist(A))
-    plot <- ggplot(df, aes(fill=type)) + geom_col(aes(cols,val))
+    plot <- ggplot(df) + geom_col(aes(cols, val, fill=cols))
     plot <- plot + labs(title="Bounds on Tail Probabilities", x="Bound", 
                         y="Probability")
-    plot <- plot + scale_fill_discrete(name="Parameter Origin", 
-                                       breaks=c("emp", "est", "upb"), 
-                                       labels=c("Observed", "MOME Estimate", 
-                                                "CI Upper Bound"))
+    plot <- plot + scale_fill_discrete(name="Bounding Method", 
+                                       breaks=c("prob", "mc.est"), 
+                                       labels=c("Observed", 
+                                                "Monte Carlo Estimate"))
     plot <- plot + theme(axis.text.x=element_text(angle=45))
     ggsave(filename)
   }
@@ -79,30 +75,18 @@ PlotResults <- function(results, filename) {
   results <- data.frame(do.call(rbind, lapply(results, unlist)))
   # Plot results
   df <- data.frame(trials=c(1:m), 
-                   type=factor(c(rep("prob", m), rep("markov.est", m), 
-                                 rep("markov.upb", m), 
-                                 rep("chebyshev.est", m),
-                                 rep("chebyshev.upb", m)), 
-                               levels=c("prob", "markov.est", "markov.upb", 
-                                        "chebyshev.est", 
-                                        "chebyshev.upb")), 
-                   val=c(results$prob, results$markov.est, results$markov.upb, 
-                         results$chebyshev.est, results$chebyshev.upb))
+                   type=factor(c(rep("prob", m), rep("mc.est", m)), 
+                               levels=c("prob", "mc.est")), 
+                   val=c(results$prob, results$mc.est))
   plot <- ggplot(df, aes(color=type, alpha=type))
   plot <- plot + geom_line(aes(x=trials, y=val))
   plot <- plot + labs(title="Bounds on Tail Probabilities", x="Tests", 
                       y="Probability")
   plot <- plot + scale_color_discrete(name="Bounding Method", 
-                                      breaks=c("prob", "markov.est", 
-                                               "markov.upb",
-                                               "chebyshev.est",
-                                               "chebyshev.upb"), 
+                                      breaks=c("prob", "mc.est"), 
                                       labels=c("Observed Probability", 
-                                               "Markov Estimate", 
-                                               "Markov Upper Bound",
-                                               "Chebyshev Estimate",
-                                               "Chebyshev Upper Bound"))
-  plot <- plot + scale_alpha_manual(values=c(1, rep(0.2,6)), guide=FALSE)
+                                               "Monte Carlo Estimate"))
+  plot <- plot + scale_alpha_manual(values=c(1, 0.2), guide=FALSE)
   ggsave(filename)
 }
 
@@ -114,7 +98,7 @@ cat("################################################################\n\n")
 
 file.names <- dir("data/epsp-data/", pattern="*.csv")
 maxN = 12
-folder.plots <- "./plots/epsp-binomial/mome/max-amp/"
+folder.plots <- "./plots/epsp-binomial/mome/max-amp-sim/"
 
 for (i in 1:length(file.names)) {
   filename <- file.names[i]
@@ -144,11 +128,11 @@ for (i in 1:length(file.names)) {
         for (l in 1:length(file)) {
           cat("\t\tspike ", l, "\n", sep="")
           x <- unlist(file[l])
-          results[[l]] <- MaxAmpProbability(x, N, paste(folder.N, "spike", l, 
+          results[[l]] <- MaxAmpSim(x, N, 10000, paste(folder.N, "spike", l, 
                                                         ".pdf", sep=""))
           cat("\n")
         }
-        PlotResults(results, paste(folder.N, "max-amp.pdf", sep=""))
+        PlotResults(results, paste(folder.N, "max-amp-sim.pdf", sep=""))
       }
     }
   }

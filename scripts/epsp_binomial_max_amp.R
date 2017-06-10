@@ -54,7 +54,7 @@ MaxAmpProbability <- function(x, N, filename) {
                             "chebyshev.est", "chebyshev.upb"), 
                      type=c("emp", "est", "upb", "est", "upb"), 
                      val=unlist(A))
-    plot <- ggplot(df, aes(fill=type)) + geom_col(aes(cols,val))
+    plot <- ggplot(df, aes(fill=type)) + geom_col(aes(cols, val))
     plot <- plot + labs(title="Bounds on Tail Probabilities", x="Bound", 
                         y="Probability")
     plot <- plot + scale_fill_discrete(name="Parameter Origin", 
