@@ -41,7 +41,7 @@ MaxAmpSim <- function(x, N, m, filename) {
   sample <- EPSP.Binomial(theta.hat, N, m)
   mc.est <- length(sample[sample >= t]) / m
   
-  # Sumarry of results
+  # Summary of results
   A = list(prob=1/n, mc.est=mc.est)
   cat("Observed Probability: ", A$prob, "\n", sep="")
   cat("Monte Carlo Estimate: ", A$mc.est, "\n", sep="")

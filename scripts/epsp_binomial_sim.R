@@ -24,15 +24,15 @@ PlotSim <- function(x, N, filename) {
   theta.hat <- MOME.Binomial(x, N)
   cat("Estimated parameters: (mu, sigma, p) = (", theta.hat$mu, ", ", 
       theta.hat$sigma, ", ", theta.hat$p, ")\n", sep="")
+  sim <- EPSP.Binomial(theta.hat, N, n)
   ci <- Bootstrap.CI.Binomial(theta.hat, N, n, B=100)
-  upper <- list(mu=ci$mu[2], sigma=ci$sigma[2], p=ci$p[2])
   cat("Confidence intervals: (mu, sigma, p) = ([", ci$mu[1], ", ", 
       ci$mu[2], "], [", ci$sigma[1], ", ", ci$sigma[2], "], [", 
       ci$p[1], ", ", ci$p[2], "])\n", sep="")
   
   # Plot the result if filename is specified
   if (!missing(filename)) {
-    df <- data.frame(data=x)
+    df <- data.frame(data=sim)
     plot <- ggplot(df, aes(x=data)) + geom_histogram()
     plot <- plot + labs(title=paste("Simulated Histogram of", fileroot))
     ggsave(filename)
