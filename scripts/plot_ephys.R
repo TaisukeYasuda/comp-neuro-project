@@ -8,7 +8,8 @@ library(IgorR)
 source("./scripts/filenames.R")
 source("./scripts/read_ephys.R")
 
-ephys.sweep <- "sweep7"
+ephys.sweeps <- c("sweep7", "sweep8", "sweep9", "sweep10", "sweep11", 
+                  "sweep12", "sweep13", "sweep14", "sweep15", "sweep16")
 ephys.file <- "11sept2015e.pxp"
 ephys.file.root <- FileRoot(ephys.file)
 ephys.folder <- "./data/electro-data/"

@@ -6,7 +6,7 @@ setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 library(ggplot2)
 library(functional)
 source("./scripts/filenames.R")
-source("./scripts/epsp_binomial.R")
+source("./scripts/epsp_binomial_lib.R")
 
 file.names <- dir("data/epsp-data/", pattern="*.csv")
 
@@ -36,14 +36,36 @@ for (i in 1:length(file.names)) {
   
   # Plot the failure rates
   plot <- ggplot(data.frame("fail"=fail, "trials"=1:10), aes(x=trials, y=fail))
-  plot <- plot + geom_line() + labs(title=Title(fileroot), x="spike", y="failure rate")
+  plot <- plot + geom_line() + labs(title=Title(fileroot), x="spike", 
+                                    y="failure rate")
   plot <- plot + scale_y_continuous(limits=c(0, 1))
-  ggsave(FileName(fileroot))
+  if (FALSE) {
+    ggsave(FileName(fileroot))
+  }
 }
 
 # Plot all the failure rates in one plot
 plot <- ggplot(aggregate_data, aes(x=trials, y=fail, color=cell)) + geom_line()
-plot <- plot + labs(title="Failure Rates over Successive Spikes", x="spike", y="failure rate")
+plot <- plot + labs(title="Failure Rates over Successive Spikes", x="spike", 
+                    y="failure rate")
 plot <- plot + scale_y_continuous(limits=c(0,1))
-ggsave("./plots/failure-rates.pdf")
+if (FALSE) {
+  ggsave("./plots/failure-rates.pdf")
+}
 
+# Plot the average failure rate in one plot
+averages <- apply(array(1:10), 1, function(trial) {
+  mean(aggregate_data[aggregate_data$trials == trial,]$fail)
+})
+ci <- apply(array(1:10), 1, function(trial) {
+  quantile(aggregate_data[aggregate_data$trials == trial,]$fail, 
+           probs=c(0.025, 0.975))
+})
+ci <- data.frame(t(ci))
+names(ci) <- c("ymin", "ymax")
+df <- cbind(data.frame(x=1:10, y=averages), ci)
+plot <- ggplot(df) + geom_line(aes(x=x, y=y)) + coord_cartesian("ylim"=c(0,1))
+plot <- plot + labs(title="Average Failure Rate", x="Trial", y="Failure Rate")
+ggsave("./plots/average-failure-rate.pdf")
+plot <- plot + geom_errorbar(aes(x=x, ymin=ymin, ymax=ymax))
+ggsave("./plots/average-failure-rate-ci.pdf")
