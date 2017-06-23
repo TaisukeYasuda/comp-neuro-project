@@ -1,0 +1,96 @@
+# Taisuke Yasuda
+#
+# Plots and saves the failure rates of each cell. 
+
+setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
+library(ggplot2)
+library(functional)
+source("./code/filenames.R")
+source("./code/epsp_binomial_lib.R")
+
+file.names <- dir("data/epsp-data/", pattern="*.csv")
+
+# Specify subset of the data, title, and folder to save the plot
+Title <- function(fileroot) {
+  paste("Failure Rates of ", fileroot, sep="")
+}
+FileName <- function(fileroot) {
+  paste("plots/failure-rates/", fileroot, ".pdf", sep="")
+}
+
+aggregate_data <- data.frame()
+for (i in 1:length(file.names)) {
+  # Read the data
+  filename <- file.names[i]
+  fileroot <- FileRoot(filename)
+  print(fileroot)
+  file <- read.csv(file=paste("data/epsp-data/", filename, sep=""),
+                   header=TRUE, sep=",")
+  file = file[2:11]
+  names(file) = c(1:10)
+  
+  # Compute failure rates
+  fail <- apply(array(file), 2, SampleFailureRate)
+  aggregate_data = rbind(aggregate_data, data.frame(fail=fail, spikes=1:10,
+                                                    cell=fileroot,
+                                                    sweeps=length(file[1])))
+  
+  # Plot the failure rates
+  plot <- ggplot(data.frame("fail"=fail, "spikes"=1:10), aes(x=spikes, y=fail))
+  plot <- plot + geom_line() + labs(title=Title(fileroot), x="spike", 
+                                    y="failure rate")
+  plot <- plot + scale_y_continuous(limits=c(0, 1))
+  if (FALSE) {
+    ggsave(FileName(fileroot))
+  }
+}
+
+# Plot all the failure rates in one plot
+plot <- ggplot(aggregate_data, aes(x=spikes, y=fail, color=cell)) + geom_line()
+plot <- plot + labs(title="Failure Rates over Successive Spikes", x="spike", 
+                    y="failure rate")
+plot <- plot + scale_y_continuous(limits=c(0,1))
+plot <- plot + theme_bw()
+plot <- plot + theme(panel.border=element_blank(), 
+                     panel.grid.major=element_blank(),
+                     panel.grid.minor=element_blank(), 
+                     axis.line=element_line(colour = "black"))
+if (TRUE) {
+  ggsave("./plots/failure-rates.pdf")
+}
+
+if (FALSE) {
+  # Plot the average failure rate in one plot
+  averages <- apply(array(1:10), 1, function(spike) {
+    mean(aggregate_data[aggregate_data$spikes == spike,]$fail)
+  })
+  ci <- apply(array(1:10), 1, function(trial) {
+    quantile(aggregate_data[aggregate_data$spikes == spike,]$fail, 
+             probs=c(0.025, 0.975))
+  })
+  ci <- data.frame(t(ci))
+  names(ci) <- c("ymin", "ymax")
+  df <- cbind(data.frame(x=1:10, y=averages), ci)
+  plot <- ggplot(df) + geom_line(aes(x=x, y=y)) + coord_cartesian("ylim"=c(0,1))
+  plot <- plot + labs(title="Average Failure Rate", x="Spike", y="Failure Rate")
+  ggsave("./plots/average-failure-rate.pdf")
+  plot <- plot + geom_errorbar(aes(x=x, ymin=ymin, ymax=ymax))
+  ggsave("./plots/average-failure-rate-ci.pdf")
+}
+
+# Plot the weighted average failure rate in one plot
+averages <- apply(array(1:10), 1, function(spike) {
+  fails <- aggregate_data[aggregate_data$spikes == spike,]$fail
+  sweeps <- aggregate_data[aggregate_data$spikes == spike,]$sweeps
+  total <- sum(sweeps)
+  return(fails %*% sweeps / total)
+})
+df <-data.frame(x=1:10, y=averages)
+plot <- ggplot(df) + geom_line(aes(x=x, y=y)) + coord_cartesian("ylim"=c(0,1))
+plot <- plot + labs(title="Cumulative Failure Rate", x="Spike", y="Failure Rate")
+plot <- plot + theme_bw()
+plot <- plot + theme(panel.border=element_blank(), 
+                     panel.grid.major=element_blank(),
+                     panel.grid.minor=element_blank(), 
+                     axis.line=element_line(colour = "black"))
+ggsave("./plots/cumulative-failure-rate.pdf")
