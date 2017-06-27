@@ -6,8 +6,8 @@
 
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 library(ggplot2)
-source("./scripts/epsp_binomial_lib.R")
-source("./scripts/filenames.R")
+source("./code/epsp_binomial_lib.R")
+source("./code/filenames.R")
 
 # Functions for executing the task
 
@@ -41,6 +41,11 @@ PlotSim <- function(x, N, filename) {
                                   position='identity')
     plot <- plot + labs(title=paste("Simulated Density of", fileroot), 
                         x="Amplitude (mV)", y="Density")
+    plot <- plot + theme_bw()
+    plot <- plot + theme(panel.border=element_blank(), 
+                         panel.grid.major=element_blank(),
+                         panel.grid.minor=element_blank(), 
+                         axis.line=element_line(colour = "black"))
     ggsave(filename)
   }
 }

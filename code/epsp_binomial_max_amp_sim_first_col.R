@@ -5,8 +5,8 @@
 
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 library(ggplot2)
-source("./scripts/epsp_binomial_lib.R")
-source("./scripts/filenames.R")
+source("./code/epsp_binomial_lib.R")
+source("./code/filenames.R")
 
 # Functions for executing the task
 
@@ -58,6 +58,11 @@ MaxAmpSim <- function(x, N, m, filename) {
                                        labels=c("Observed", 
                                                 "Monte Carlo Estimate"))
     plot <- plot + theme(axis.text.x=element_text(angle=45))
+    plot <- plot + theme_bw()
+    plot <- plot + theme(panel.border=element_blank(), 
+                         panel.grid.major=element_blank(),
+                         panel.grid.minor=element_blank(), 
+                         axis.line=element_line(colour = "black"))
     ggsave(filename)
   }
   return(A)
@@ -87,6 +92,11 @@ PlotResults <- function(results, filename) {
                                       labels=c("Observed Probability", 
                                                "Monte Carlo Estimate"))
   plot <- plot + scale_alpha_manual(values=c(1, 0.2), guide=FALSE)
+  plot <- plot + theme_bw()
+  plot <- plot + theme(panel.border=element_blank(), 
+                       panel.grid.major=element_blank(),
+                       panel.grid.minor=element_blank(), 
+                       axis.line=element_line(colour = "black"))
   ggsave(filename)
 }
 

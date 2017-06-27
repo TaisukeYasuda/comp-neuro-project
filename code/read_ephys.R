@@ -2,6 +2,8 @@
 #
 # This file implements the useful functions for viewing the ephys data. 
 
+library(IgorR)
+
 SweepToDataFrame <- function(sweep) {
   # Converts wave data to a data frame. 
   #

@@ -494,13 +494,48 @@ First figure should consist of something like:
 \begin{itemize}
   \item plotted average failure rate plot (with and without ci)
   \item plotted heatmaps
+  \item completed figure 1 first draft
 \end{itemize}
 
+\section{June 18, 2017}
 \subsection{Goals}
 \begin{itemize}
-  \item
+  \item fix average of failure rates to be a weighted average
+  \item EM algorithm (monte carlo? direct computation of pdf?)
 \end{itemize}
 
+\section{June 20, 2017}
+\subsection{Goals}
+\begin{itemize}
+  \item estimating pdfs and cdfs with the empirical distribution
+\end{itemize}
+
+\subsection{EM Algorithm for the Lognormal Binomial Model}
+As before, we fix $N$, let $(x_i)_{i=1}^n$ be our observations of our model, let $y=(y_j)_{j=1}^N$ be our hidden observed values of the release success of each contact, and let $(\mu, \sigma^2, p)$ be the parameters of the lognormal binomial model. The log-likelihood of the parameters is given by
+\[
+  \ell(\theta) = \sum_{i=1}^n \log p(x_i;\theta) = \sum_{i=1}^n \log\sum_{y\in\{0,1\}^N} p(x_i\mid y;\theta)\cdot p(y;\theta).
+\]
+To be continued.
+
+\section{June 21, 2017}
+\subsection{Goals}
+\begin{itemize}
+  \item take log of data and back up lognormal data
+  \item make good titles for figures
+  \item white background in figures
+\end{itemize}
+
+\section{June 22, 2017}
+\subsection{Progress}
+\begin{itemize}
+  \item revised figure 1
+\end{itemize}
+
+\section{June 25, 2017}
+\subsection{Goals}
+\begin{itemize}
+  \item work on figure 2
+\end{itemize}
 
 \bibliography{citations}
 \bibliographystyle{plain}

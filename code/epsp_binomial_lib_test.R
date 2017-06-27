@@ -4,7 +4,7 @@
 
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 library(ggplot2)
-source("./scripts/epsp_binomial_lib.R")
+source("./code/epsp_binomial_lib.R")
 
 # c(1,2) indicates running tasks 1 and 2, etc.
 tasks.to.run = c()
@@ -56,6 +56,11 @@ if (1 %in% tasks.to.run) {
       plot <- ggplot(df, aes(color=type))
       plot <- plot + geom_point(aes(x=param, y=val))
       plot <- plot + geom_errorbar(aes(x=param, ymin=ymin, ymax=ymax))
+      plot <- plot + theme_bw()
+      plot <- plot + theme(panel.border=element_blank(), 
+                           panel.grid.major=element_blank(),
+                           panel.grid.minor=element_blank(), 
+                           axis.line=element_line(colour = "black"))
       ggsave(filename)
     }
     return(list("theta.hat"=theta.hat, "ci"=ci))
@@ -81,6 +86,11 @@ if (1 %in% tasks.to.run) {
                      ymax=c(results$theta.mu, results$ci.mu2))
     plot <- ggplot(df, aes(color=type)) + geom_point(aes(x=trials, y=val))
     plot <- plot + geom_errorbar(aes(x=trials, ymin=ymin, ymax=ymax))
+    plot <- plot + theme_bw()
+    plot <- plot + theme(panel.border=element_blank(), 
+                         panel.grid.major=element_blank(),
+                         panel.grid.minor=element_blank(), 
+                         axis.line=element_line(colour = "black"))
     ggsave(filename.mu)
     # Plot sigma results
     df <- data.frame(trials=c(1:m, 1:m), 
@@ -90,6 +100,11 @@ if (1 %in% tasks.to.run) {
                      ymax=c(results$theta.sigma, results$ci.sigma2))
     plot <- ggplot(df, aes(color=type)) + geom_point(aes(x=trials, y=val))
     plot <- plot + geom_errorbar(aes(x=trials, ymin=ymin, ymax=ymax))
+    plot <- plot + theme_bw()
+    plot <- plot + theme(panel.border=element_blank(), 
+                         panel.grid.major=element_blank(),
+                         panel.grid.minor=element_blank(), 
+                         axis.line=element_line(colour = "black"))
     ggsave(filename.sigma)
     # Plot p results
     df <- data.frame(trials=c(1:m, 1:m), 
@@ -99,6 +114,11 @@ if (1 %in% tasks.to.run) {
                      ymax=c(results$theta.p, results$ci.p2))
     plot <- ggplot(df, aes(color=type)) + geom_point(aes(x=trials, y=val))
     plot <- plot + geom_errorbar(aes(x=trials, ymin=ymin, ymax=ymax))
+    plot <- plot + theme_bw()
+    plot <- plot + theme(panel.border=element_blank(), 
+                         panel.grid.major=element_blank(),
+                         panel.grid.minor=element_blank(), 
+                         axis.line=element_line(colour = "black"))
     ggsave(filename.p)
   }
   
@@ -359,6 +379,11 @@ if (2 %in% tasks.to.run) {
                                                   "MOME Estimate", 
                                                   "CI Upper Bound"))
       plot <- plot + theme(axis.text.x=element_text(angle=45))
+      plot <- plot + theme_bw()
+      plot <- plot + theme(panel.border=element_blank(), 
+                           panel.grid.major=element_blank(),
+                           panel.grid.minor=element_blank(), 
+                           axis.line=element_line(colour = "black"))
       ggsave(filename)
     }
     return(A)
@@ -407,6 +432,11 @@ if (2 %in% tasks.to.run) {
                                                  "Chebyshev Estimate",
                                                  "Chebyshev Upper Bound"))
     plot <- plot + scale_alpha_manual(values=c(1, rep(0.2,6)), guide=FALSE)
+    plot <- plot + theme_bw()
+    plot <- plot + theme(panel.border=element_blank(), 
+                         panel.grid.major=element_blank(),
+                         panel.grid.minor=element_blank(), 
+                         axis.line=element_line(colour = "black"))
     ggsave(filename)
   }
   

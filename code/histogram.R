@@ -4,7 +4,7 @@
 
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 library(ggplot2)
-source("./scripts/filenames.R")
+source("./code/filenames.R")
 
 file.names <- dir("data/epsp-data/", pattern="*.csv")
 
