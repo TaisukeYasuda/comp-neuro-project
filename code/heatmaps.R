@@ -34,7 +34,8 @@ for (i in 1:length(file.names)) {
   plot <- ggplot(file, aes(x=spike, y=sweep, fill=amplitude))
   plot <- plot + geom_tile() + ggtitle(Title(fileroot))
   plot <- plot + labs(x="Spike Number", y="Sweep")
-  plot <- plot + scale_x_discrete(name="Amplitude (mV)", limits=1:10)
+  plot <- plot + scale_x_discrete(limits=1:10)
+  plot <- plot + scale_fill_continuous(name="Amplitude (mV)")
   plot <- plot + theme_bw()
   plot <- plot + theme(panel.border=element_blank(), 
                        panel.grid.major=element_blank(),
