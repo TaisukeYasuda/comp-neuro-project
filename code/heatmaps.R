@@ -28,11 +28,13 @@ for (i in 1:length(file.names)) {
   file <- file[2:11]
   names(file) <- c(1:10)
   file <- melt(as.matrix(file))
-  names(file) <- c("Sweep", "Spike", "Amplitude")
+  names(file) <- c("sweep", "spike", "amplitude")
   
   # Plot the heatmap
-  plot <- ggplot(file, aes(x=Spike, y=Sweep, fill=Amplitude))
+  plot <- ggplot(file, aes(x=spike, y=sweep, fill=amplitude))
   plot <- plot + geom_tile() + ggtitle(Title(fileroot))
+  plot <- plot + labs(x="Spike Number", y="Sweep")
+  plot <- plot + scale_x_discrete(name="Amplitude (mV)", limits=1:10)
   plot <- plot + theme_bw()
   plot <- plot + theme(panel.border=element_blank(), 
                        panel.grid.major=element_blank(),

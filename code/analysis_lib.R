@@ -17,6 +17,7 @@ IgorAnalysis <- R6Class("IgorAnalysis",
     response.patch = NULL,
     response.dfs = NULL,
     # working sweep
+    sweep.num = 0,
     sweep.name = "sweep0",
     sweep.df = NULL,
     sweep.stimulus.df = NULL,
@@ -60,14 +61,17 @@ IgorAnalysis <- R6Class("IgorAnalysis",
       print("response:")
       print(names(self$response.dfs))
     },
-    set.sweep = function(i) {
+    set.sweep = function(i, print=TRUE) {
+      self$sweep.num <- i
       self$sweep.name <- paste("sweep", i, sep="")
       self$sweep.stimulus.df <- self$stimulus.dfs[[self$sweep.name]]
       self$sweep.stimulus.df$type <- "stimulus"
       self$sweep.response.df <- self$response.dfs[[self$sweep.name]]
       self$sweep.response.df$type <- "response"
       self$sweep.df <- rbind(self$sweep.stimulus.df, self$sweep.response.df)
-      print(paste("Sweep set to", self$sweep.name))
+      if (print) {
+        print(paste("Sweep set to", self$sweep.name))
+      }
       self$add(self$offset)
       return(self$plot())
     },
@@ -92,6 +96,7 @@ IgorAnalysis <- R6Class("IgorAnalysis",
                            panel.grid.minor=element_blank(), 
                            axis.line=element_line(colour = "black"))
       plot <- plot + coord_cartesian(xlim=self$xlim, ylim=self$ylim)
+      plot <- plot + ggtitle(self$sweep.name)
       return(plot)
     },
     plot.original = function() {
@@ -101,7 +106,7 @@ IgorAnalysis <- R6Class("IgorAnalysis",
       self$xlim <- NULL
       self$ylim <- NULL
       self$offset <- 0
-      plot <- self$plot()
+      plot <- self$set.sweep(self$sweep.num, print=FALSE)
       self$xlim <- xlim
       self$ylim <- ylim
       self$offset <- offset
@@ -138,7 +143,17 @@ IgorAnalysis <- R6Class("IgorAnalysis",
       df.max <- data.frame(x=c(t.start, t.end), y=max.volt, type="max")
       df.min <- data.frame(x=c(t.start, t.end), y=base.volt, type="base")
       df <- rbind(df.max, df.min)
-      return(plot + geom_line(data=df, aes(x=x, y=y)))
+      plot <- plot + geom_line(data=df, aes(x=x, y=y))
+      print(plot)
+      record <- readline(prompt="Record amplitude? (y/n) ")
+      if (record != "n") {
+        spike <- as.integer(readline(prompt="OK, enter the spike number: "))
+        self$record.amp(spike, max.volt - base.volt)
+        return(plot)
+      } else {
+        print("Not recording.")
+        return()
+      }
     }
   ), 
   private = list(
