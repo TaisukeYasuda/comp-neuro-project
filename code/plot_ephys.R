@@ -8,10 +8,10 @@ library(IgorR)
 source("./code/filenames.R")
 source("./code/read_ephys.R")
 
-ephys.sweep <- "sweep16"
-ephys.sweeps <- c("sweep7", "sweep8", "sweep9", "sweep10", "sweep11", 
-                  "sweep12", "sweep13", "sweep14", "sweep15", "sweep16")
-ephys.file <- "11sept2015e.pxp"
+ephys.sweep <- "sweep14"
+ephys.sweeps <- c("sweep5", "sweep6", "sweep7", "sweep8", "sweep9", 
+                  "sweep10", "sweep11", "sweep12", "sweep13", "sweep14")
+ephys.file <- "17march2016g.pxp"
 ephys.file.root <- FileRoot(ephys.file)
 ephys.folder <- "./data/electro-data/"
 
@@ -71,10 +71,12 @@ if (FALSE) {
 }
 
 df <- data.frame()
+offset <- 5
+interval <- 6
 for (i in 1:10) {
   ephys.sweep <- ephys.sweeps[i]
   df.response <- SweepToDataFrame(response[[ephys.sweep]])
-  df.response$y <- df.response$y + 10 * i
+  df.response$y <- df.response$y + interval * i + offset
   df.response$sweep <- ephys.sweep
   df <- rbind(df, df.response)
 }
@@ -82,7 +84,18 @@ for (i in 1:10) {
 plot <- ggplot(df, aes(x=t, y=y)) + geom_line(aes(color=sweep))
 plot <- plot + labs(title=paste("First 10 Sweeps of", ephys.file.root), 
                     x="Time (s)", y="Amplitude (mV)")
+for (i in 1:10) {
+  line_df <- data.frame(x=2+(i-1)*0.05,y=c(-80,80))
+  plot <- plot + geom_line(data=line_df, linetype = "dashed", aes(x=x, y=y))
+}
 plot <- plot + theme_bw()
+
+ggsave(paste("./plots/ephys/combined/", ephys.file.root, "-ns-axis.pdf", sep=""))
+plot <- plot + coord_cartesian(xlim=c(1.9,2.5), ylim=c(-50,9))
+ggsave(paste("./plots/ephys/combined/", ephys.file.root, "-zoom-ns-axis.pdf", 
+             sep=""))
+plot <- plot + coord_cartesian(xlim=NULL, ylim=NULL)
+
 plot <- plot + theme(panel.border=element_blank(), 
                      panel.grid.major=element_blank(),
                      panel.grid.minor=element_blank(), 
@@ -93,13 +106,11 @@ plot <- plot + theme(panel.border=element_blank(),
                      axis.title.y=element_blank(),
                      axis.text.y=element_blank(),
                      axis.ticks.y=element_blank())
-for (i in 1:10) {
-  line_df <- data.frame(x=2+(i-1)*0.05,y=c(-80,80))
-  plot <- plot + geom_line(data=line_df, linetype = "dashed", aes(x=x, y=y))
-}
+
 ggsave(paste("./plots/ephys/combined/", ephys.file.root, "-ns.pdf", sep=""))
-plot <- plot + coord_cartesian(xlim=c(1.9, 2.5))
-ggsave(paste("./plots/ephys/combined/", ephys.file.root, "-zoom-ns.pdf", sep=""))
+plot <- plot + coord_cartesian(xlim=c(1.9,2.5), ylim=c(-50,9))
+ggsave(paste("./plots/ephys/combined/", ephys.file.root, "-zoom-ns.pdf", 
+             sep=""))
 
 if (FALSE) {
   df.stimulus <- SweepToDataFrame(stimulus[[ephys.sweep]])
