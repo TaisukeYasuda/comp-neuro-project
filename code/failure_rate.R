@@ -37,8 +37,8 @@ for (i in 1:length(file.names)) {
   
   # Plot the failure rates
   plot <- ggplot(data.frame("fail"=fail, "spikes"=1:10), aes(x=spikes, y=fail))
-  plot <- plot + geom_line() + labs(title=Title(fileroot), x="spike", 
-                                    y="failure rate")
+  plot <- plot + geom_line() + labs(title=Title(fileroot), x="Spike Number", 
+                                    y="Failure Rate")
   plot <- plot + scale_y_continuous(limits=c(0, 1))
   if (FALSE) {
     ggsave(FileName(fileroot))
@@ -48,7 +48,7 @@ for (i in 1:length(file.names)) {
 # Plot all the failure rates in one plot
 plot <- ggplot(aggregate_data, aes(x=spikes, y=fail, color=cell)) + geom_line()
 plot <- plot + labs(title="Failure Rates over Successive Spikes", x="Spike Number", 
-                    y="Failure rate")
+                    y="Failure Rate")
 plot <- plot + scale_y_continuous(limits=c(0,1))
 plot <- plot + scale_x_discrete(limits=1:10)
 plot <- plot + theme_bw()
