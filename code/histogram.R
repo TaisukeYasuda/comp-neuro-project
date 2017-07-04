@@ -9,12 +9,12 @@ source("./code/filenames.R")
 file.names <- dir("data/epsp-data/", pattern="*.csv")
 
 # Specify subset of the data, title, and folder to save the plot
-cols = c(1:10)
+cols = c(1)
 Title <- function(fileroot) {
   paste("Histogram of ", fileroot, sep="")
 }
 FileName <- function(fileroot) {
-  paste("plots/histogram-all/", fileroot, ".pdf", sep="")
+  paste("plots/histogram-first-col/", fileroot, ".pdf", sep="")
 }
 
 for (i in 1:length(file.names)) {
@@ -30,6 +30,14 @@ for (i in 1:length(file.names)) {
   # Plot the histogram
   plot <- ggplot(data.frame("data"=unlist(file[cols])), aes(x=data))
   plot <- plot + geom_histogram() + ggtitle(Title(fileroot))
+  plot <- plot + labs(x="Amplitude (mV)", y="Count")
+  plot <- plot + theme_bw()
+  plot <- plot + theme(axis.text=element_text(size=30),
+                       axis.title=element_text(size=30),
+                       panel.border=element_blank(), 
+                       panel.grid.major=element_blank(),
+                       panel.grid.minor=element_blank(), 
+                       axis.line=element_line(colour = "black"))
   ggsave(FileName(fileroot))
 }
 print(plot)

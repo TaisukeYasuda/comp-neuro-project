@@ -48,6 +48,8 @@ for (i in 1:length(file.names)) {
                                                     cell=fileroot))
 }
 
+write.csv(aggregate_data, "./data/summary_stats.csv")
+
 # Only first spike
 aggregate_data <- aggregate_data[aggregate_data$spikes == 1,]
 
