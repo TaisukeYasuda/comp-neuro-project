@@ -59,8 +59,8 @@ plot <- plot + labs(title="Mean Amplitude vs Failure Rate",
                     x="Mean Amplitude (mV)", y="Failure Rate")
 plot <- plot + scale_color_discrete(name="Cell")
 plot <- plot + theme_bw()
-plot <- plot + theme(axis.text=element_text(size=30),
-                     axis.title=element_text(size=30),
+plot <- plot + theme(axis.text=element_text(size=20),
+                     axis.title=element_text(size=20),
                      panel.border=element_blank(), 
                      panel.grid.major=element_blank(),
                      panel.grid.minor=element_blank(), 
@@ -73,8 +73,8 @@ plot <- plot + labs(title="Min Amplitude vs Failure Rate",
                     x="Min Amplitude (mV)", y="Failure Rate")
 plot <- plot + scale_color_discrete(name="Cell")
 plot <- plot + theme_bw()
-plot <- plot + theme(axis.text=element_text(size=30),
-                     axis.title=element_text(size=30),
+plot <- plot + theme(axis.text=element_text(size=20),
+                     axis.title=element_text(size=20),
                      panel.border=element_blank(), 
                      panel.grid.major=element_blank(),
                      panel.grid.minor=element_blank(), 
@@ -87,8 +87,8 @@ plot <- plot + labs(title="Max Amplitude vs Failure Rate",
                     x="Max Amplitude (mV)", y="Failure Rate")
 plot <- plot + scale_color_discrete(name="Cell")
 plot <- plot + theme_bw()
-plot <- plot + theme(axis.text=element_text(size=30),
-                     axis.title=element_text(size=30),
+plot <- plot + theme(axis.text=element_text(size=20),
+                     axis.title=element_text(size=20),
                      panel.border=element_blank(), 
                      panel.grid.major=element_blank(),
                      panel.grid.minor=element_blank(), 

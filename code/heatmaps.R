@@ -39,8 +39,10 @@ for (i in 1:length(file.names)) {
   plot <- plot + scale_fill_gradientn(name="Amplitude (mV)", 
                                       colors=matlab.like(1000))
   plot <- plot + theme_bw()
-  plot <- plot + theme(axis.text=element_text(size=30),
-                       axis.title=element_text(size=30),
+  plot <- plot + theme(axis.text=element_text(size=20),
+                       axis.title=element_text(size=20),
+                       legend.title=element_text(size=20),
+                       legend.text=element_text(size=20),
                        panel.border=element_blank(), 
                        panel.grid.major=element_blank(),
                        panel.grid.minor=element_blank(), 
