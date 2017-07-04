@@ -46,7 +46,7 @@ for (i in 1:length(file.names)) {
 }
 
 # Plot all the failure rates in one plot
-plot <- ggplot(aggregate_data, aes(x=spikes, y=fail, color=cell)) + geom_line()
+plot <- ggplot(aggregate_data, aes(x=spikes, y=fail, group=cell)) + geom_line()
 plot <- plot + labs(title="Failure Rates over Successive Spikes", x="Spike Number", 
                     y="Failure Rate")
 plot <- plot + scale_y_continuous(limits=c(0,1))

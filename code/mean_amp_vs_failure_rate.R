@@ -38,6 +38,9 @@ for (i in 1:length(file.names)) {
                                                     cell=fileroot))
 }
 
+# Only first spike
+aggregate_data <- aggregate_data[aggregate_data$spikes == 1,]
+
 plot <- ggplot(aggregate_data, aes(x=means, y=fail, color=cell)) + geom_point()
 plot <- plot + labs(title="Mean Amplitude vs Failure Rate", 
                     x="Mean Amplitude (mV)", y="Failure Rate")

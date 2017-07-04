@@ -73,15 +73,23 @@ if (FALSE) {
 df <- data.frame()
 offset <- 5
 interval <- 6
+average <- SweepToDataFrame(response[[ephys.sweeps[1]]])
 for (i in 1:10) {
   ephys.sweep <- ephys.sweeps[i]
   df.response <- SweepToDataFrame(response[[ephys.sweep]])
+  average$y <- average$y + df.response$y
   df.response$y <- df.response$y + interval * i + offset
   df.response$sweep <- ephys.sweep
+  df.response$average <- FALSE
   df <- rbind(df, df.response)
 }
+average$y <- (average$y / 10) + 10
+average$average <- TRUE
+average$sweep <- "average"
+df <- rbind(df, average)
 
-plot <- ggplot(df, aes(x=t, y=y)) + geom_line(aes(color=sweep))
+plot <- ggplot(df, aes(x=t, y=y)) + geom_line(aes(group=sweep, color=average))
+plot <- plot + scale_color_manual(values=c("black", "gray"))
 plot <- plot + labs(title=paste("First 10 Sweeps of", ephys.file.root), 
                     x="Time (s)", y="Amplitude (mV)")
 for (i in 1:10) {
@@ -91,7 +99,7 @@ for (i in 1:10) {
 plot <- plot + theme_bw()
 
 ggsave(paste("./plots/ephys/combined/", ephys.file.root, "-ns-axis.pdf", sep=""))
-plot <- plot + coord_cartesian(xlim=c(1.9,2.5), ylim=c(-50,9))
+plot <- plot + coord_cartesian(xlim=c(1.9,2.5), ylim=c(-60,9))
 ggsave(paste("./plots/ephys/combined/", ephys.file.root, "-zoom-ns-axis.pdf", 
              sep=""))
 plot <- plot + coord_cartesian(xlim=NULL, ylim=NULL)
@@ -108,7 +116,7 @@ plot <- plot + theme(panel.border=element_blank(),
                      axis.ticks.y=element_blank())
 
 ggsave(paste("./plots/ephys/combined/", ephys.file.root, "-ns.pdf", sep=""))
-plot <- plot + coord_cartesian(xlim=c(1.9,2.5), ylim=c(-50,9))
+plot <- plot + coord_cartesian(xlim=c(1.9,2.5), ylim=c(-60,9))
 ggsave(paste("./plots/ephys/combined/", ephys.file.root, "-zoom-ns.pdf", 
              sep=""))
 
