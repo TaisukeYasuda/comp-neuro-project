@@ -52,7 +52,9 @@ plot <- plot + labs(title="Failure Rates over Successive Spikes", x="Spike Numbe
 plot <- plot + scale_y_continuous(limits=c(0,1))
 plot <- plot + scale_x_discrete(limits=1:10)
 plot <- plot + theme_bw()
-plot <- plot + theme(panel.border=element_blank(), 
+plot <- plot + theme(axis.text=element_text(size=30),
+                     axis.title=element_text(size=30),
+                     panel.border=element_blank(), 
                      panel.grid.major=element_blank(),
                      panel.grid.minor=element_blank(), 
                      axis.line=element_line(colour = "black"))
@@ -82,7 +84,9 @@ if (TRUE) {
   plot <- ggplot(df) + geom_line(aes(x=x, y=y)) + coord_cartesian("ylim"=c(0,1))
   plot <- plot + scale_x_discrete(limits=1:10)
   plot <- plot + theme_bw()
-  plot <- plot + theme(panel.border=element_blank(), 
+  plot <- plot + theme(axis.text=element_text(size=30),
+                       axis.title=element_text(size=30),
+                       panel.border=element_blank(), 
                        panel.grid.major=element_blank(),
                        panel.grid.minor=element_blank(), 
                        axis.line=element_line(colour = "black"))
