@@ -88,8 +88,8 @@ average$average <- TRUE
 average$sweep <- "average"
 df <- rbind(df, average)
 
-plot <- ggplot(df, aes(x=t, y=y)) + geom_line(aes(group=sweep, color=average))
-plot <- plot + scale_color_manual(values=c("black", "gray"))
+plot <- ggplot(df, aes(x=t, y=y)) + geom_line(aes(group=sweep, size=average))
+plot <- plot + scale_size_manual(values=c(1,2))
 plot <- plot + labs(title=paste("First 10 Sweeps of", ephys.file.root), 
                     x="Time (s)", y="Amplitude (mV)")
 for (i in 1:10) {
