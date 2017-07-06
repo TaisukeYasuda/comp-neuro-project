@@ -47,6 +47,7 @@ for (i in 1:length(file.names)) {
 
 # Plot all the failure rates in one plot
 plot <- ggplot(aggregate_data, aes(x=spikes, y=fail, color=cell)) + geom_line()
+plot <- plot + geom_point(aes(x=spikes, y=fail, color=cell, size=30))
 plot <- plot + labs(title="Failure Rates over Successive Spikes", x="Spike Number", 
                     y="Failure Rate")
 plot <- plot + scale_y_continuous(limits=c(0,1))
@@ -81,9 +82,10 @@ if (TRUE) {
   names(ci) <- c("ymin", "ymax")
   df <- cbind(data.frame(x=1:10, y=averages), ci)
   df <- cbind(df, stds)
+  df <- cbind(df, data.frame(dummy=c("5may2016a-ctrl", "17march2016g")))
   plot <- ggplot(df) + geom_line(aes(x=x, y=y)) + coord_cartesian("ylim"=c(0,1))
-  plot <- plot + geom_point(data=aggregate_data, aes(x=spikes, y=fail, 
-                                                     color=cell, size=30))
+  plot <- plot + geom_point(aes(x=x, y=y, size=30, color=dummy))
+  plot <- plot + geom_point(aes(x=x, y=y, size=30))
   plot <- plot + scale_x_discrete(limits=1:10)
   plot <- plot + theme_bw()
   plot <- plot + theme(axis.text=element_text(size=20),
