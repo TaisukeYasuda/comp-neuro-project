@@ -11,6 +11,7 @@ source("./code/read_ephys.R")
 ephys.sweep <- "sweep14"
 ephys.sweeps <- c("sweep5", "sweep6", "sweep7", "sweep8", "sweep9", 
                   "sweep10", "sweep11", "sweep12", "sweep13", "sweep14")
+ephys.sweeps <- rev(ephys.sweeps) # switch order so that first one is at the top
 ephys.file <- "17march2016g.pxp"
 ephys.file.root <- FileRoot(ephys.file)
 ephys.folder <- "./data/electro-data/"
@@ -74,7 +75,7 @@ df <- data.frame()
 offset <- 5
 interval <- 6
 average <- SweepToDataFrame(response[[ephys.sweeps[1]]])
-for (i in 1:10) {
+for (i in 1:length(ephys.sweeps)) {
   ephys.sweep <- ephys.sweeps[i]
   df.response <- SweepToDataFrame(response[[ephys.sweep]])
   average$y <- average$y + df.response$y
@@ -87,6 +88,13 @@ average$y <- (average$y / 10) + 10
 average$average <- TRUE
 average$sweep <- "average"
 df <- rbind(df, average)
+
+if (FALSE) {
+  df.stimulus$average <- FALSE
+  df.stimulus$sweep <- "stimulus"
+  df.stimulus$type <- NULL
+  df <- rbind(df, df.stimulus)
+}
 
 plot <- ggplot(df, aes(x=t, y=y)) + geom_line(aes(group=sweep, size=average))
 plot <- plot + scale_size_manual(values=c(1,2))

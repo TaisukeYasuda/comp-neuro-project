@@ -94,7 +94,9 @@ PlotResults <- function(results, filename) {
   plot <- plot + scale_x_discrete(limits=1:m)
   plot <- plot + scale_alpha_manual(values=c(1, 0.2), guide=FALSE)
   plot <- plot + theme_bw()
-  plot <- plot + theme(panel.border=element_blank(), 
+  plot <- plot + theme(axis.text=element_text(size=20),
+                       axis.title=element_text(size=20),
+                       panel.border=element_blank(), 
                        panel.grid.major=element_blank(),
                        panel.grid.minor=element_blank(), 
                        axis.line=element_line(colour = "black"))
@@ -112,6 +114,7 @@ file.names <- dir("data/epsp-data/", pattern="*.csv")
 maxN = 12
 folder.plots <- "./plots/epsp-binomial/mome/max-amp-sim-first-col/"
 
+aggregate_data <- data.frame(ratio=c())
 for (i in 1:length(file.names)) {
   filename <- file.names[i]
   fileroot <- FileRoot(filename)
@@ -128,4 +131,8 @@ for (i in 1:length(file.names)) {
     results[[N]] <- MaxAmpSim(x, N, 100000)
   }
   PlotResults(results, paste(folder.plots, fileroot, ".pdf", sep=""))
+  print(data.frame(ratio=results$mc.est / results$prob))
+  aggregate_data <- rbind(aggregate_data, 
+                          data.frame(ratio=results$mc.est / results$prob))
 }
+print(aggregate_data)
