@@ -70,7 +70,8 @@ if (TRUE) {
     mean(aggregate_data[aggregate_data$spikes == spike,]$fail)
   })
   stds <- apply(array(1:10), 1, function(spike) {
-    s <- sqrt(var(aggregate_data[aggregate_data$spikes == spike,]$fail))
+    ith_spike = aggregate_data[aggregate_data$spikes == spike,]
+    s <- sqrt(var(ith_spike$fail)/nrow(ith_spike))
     m <- averages[spike]
     return(data.frame(ymin.std=m-s, ymax.std=m+s))
   })

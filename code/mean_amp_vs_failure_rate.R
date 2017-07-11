@@ -66,6 +66,9 @@ plot <- plot + theme(axis.text=element_text(size=30),
                      panel.grid.major=element_blank(),
                      panel.grid.minor=element_blank(), 
                      axis.line=element_line(colour = "black"))
+regression <- lm(fail ~ means, aggregate_data)
+coeff <- regression$coefficients
+plot <- plot + geom_abline(intercept=coeff[[1]], slope=coeff[[2]])
 ggsave("./plots/mean-amp-vs-failure-rate.pdf", width=11, height=8, units="in")
 
 plot <- ggplot(aggregate_data, aes(x=mins, y=fail, color=cell))
