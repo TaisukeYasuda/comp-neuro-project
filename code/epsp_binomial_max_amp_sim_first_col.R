@@ -91,6 +91,7 @@ PlotResults <- function(results, filename) {
                                       breaks=c("prob", "mc.est"), 
                                       labels=c("Observed Probability", 
                                                "Monte Carlo Estimate"))
+  plot <- plot + scale_x_discrete(limits=1:m)
   plot <- plot + scale_alpha_manual(values=c(1, 0.2), guide=FALSE)
   plot <- plot + theme_bw()
   plot <- plot + theme(panel.border=element_blank(), 

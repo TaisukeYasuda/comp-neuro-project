@@ -58,7 +58,7 @@ cat("################################################################\n\n")
 
 file.names <- dir("data/epsp-data/", pattern="*.csv")
 maxN = 12
-folder.plots <- "./plots/epsp-binomial/mome/sim-vs-original-density/"
+folder.plots <- "./plots/epsp-binomial/mome/sim-vs-original-density-first-col/"
 
 for (i in 1:length(file.names)) {
   filename <- file.names[i]
@@ -68,6 +68,7 @@ for (i in 1:length(file.names)) {
                    header=TRUE, sep=",")
   # Extract the data columns
   file <- file[2:11]
+  file <- file[1]
   
   folder.cell <- paste(folder.plots, fileroot, "/", sep="")
   # Check existence of folder for saving results
@@ -78,19 +79,12 @@ for (i in 1:length(file.names)) {
     
     for (N in 1:maxN) {
       cat("\tN = ", N, "\n", sep="")
-      folder.N <- paste(folder.cell, "N=", N, "/", sep="")
+      filename.N <- paste(folder.cell, "N=", N, ".pdf", sep="")
       # Check existence of folder for saving results
-      if (file.exists(folder.N)) {
-        cat("Error: directory '", folder.N, "'exists already.", sep="")
-      } else {
-        dir.create(folder.N)
-        for (l in 1:length(file)) {
-          cat("\t\tspike ", l, "\n", sep="")
-          x <- unlist(file[l])
-          PlotSim(x, N, paste(folder.N, "spike", l, ".pdf", sep=""))
-          cat("\n")
-        }
-      }
+      cat("\t\tspike ", 1, "\n", sep="")
+      x <- unlist(file)
+      PlotSim(x, N, filename.N)
+      cat("\n")
     }
   }
 }

@@ -54,18 +54,19 @@ write.csv(aggregate_data, "./data/summary_stats.csv")
 aggregate_data <- aggregate_data[aggregate_data$spikes == 1,]
 
 plot <- ggplot(aggregate_data, aes(x=means, y=fail, color=cell))
-plot <- plot + geom_point(aes(size = 30))
+plot <- plot + geom_point(aes(size = 40))
 plot <- plot + labs(title="Mean Amplitude vs Failure Rate", 
                     x="Mean Amplitude (mV)", y="Failure Rate")
 plot <- plot + scale_color_discrete(name="Cell")
+plot <- plot + ylim(0, 1.0) + xlim(0,0.65)
 plot <- plot + theme_bw()
-plot <- plot + theme(axis.text=element_text(size=20),
-                     axis.title=element_text(size=20),
+plot <- plot + theme(axis.text=element_text(size=30),
+                     axis.title=element_text(size=30),
                      panel.border=element_blank(), 
                      panel.grid.major=element_blank(),
                      panel.grid.minor=element_blank(), 
                      axis.line=element_line(colour = "black"))
-ggsave("./plots/mean-amp-vs-failure-rate.pdf")
+ggsave("./plots/mean-amp-vs-failure-rate.pdf", width=11, height=8, units="in")
 
 plot <- ggplot(aggregate_data, aes(x=mins, y=fail, color=cell))
 plot <- plot + geom_point(aes(size = 30))

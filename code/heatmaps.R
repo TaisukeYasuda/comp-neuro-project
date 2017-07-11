@@ -30,6 +30,7 @@ for (i in 1:length(file.names)) {
   names(file) <- c(1:10)
   file <- melt(as.matrix(file))
   names(file) <- c("sweep", "spike", "amplitude")
+  file$sweep = rev(file$sweep) # reverse order for plotting
   
   # Plot the heatmap
   plot <- ggplot(file, aes(x=spike, y=sweep, fill=amplitude))
