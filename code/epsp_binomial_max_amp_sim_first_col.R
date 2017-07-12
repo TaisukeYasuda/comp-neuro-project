@@ -62,7 +62,7 @@ MaxAmpSim <- function(x, N, m, filename) {
     plot <- plot + theme_bw()
     plot <- plot + theme(axis.text=element_text(size=20),
                          axis.title=element_text(size=20),
-                         legend.text=element_text(size=20),
+                         legend.text=element_text(size=13),
                          panel.border=element_blank(), 
                          panel.grid.major=element_blank(),
                          panel.grid.minor=element_blank(), 
@@ -101,7 +101,7 @@ PlotResults <- function(results, filename) {
   plot <- plot + theme_bw()
   plot <- plot + theme(axis.text=element_text(size=20),
                        axis.title=element_text(size=20),
-                       legend.text=element_text(size=20),
+                       legend.text=element_text(size=13),
                        panel.border=element_blank(), 
                        panel.grid.major=element_blank(),
                        panel.grid.minor=element_blank(), 
