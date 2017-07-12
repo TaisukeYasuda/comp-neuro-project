@@ -51,6 +51,7 @@ MaxAmpSim <- function(x, N, m, filename) {
     df <- data.frame(cols=c("prob", "mc.est"), 
                      val=unlist(A))
     plot <- ggplot(df) + geom_col(aes(cols, val, fill=cols))
+    plot <- plot + expand_limits(y=0)
     plot <- plot + labs(title="Bounds on Tail Probabilities", x="Tests", 
                         y="Probability")
     plot <- plot + scale_fill_discrete(name="Bounding Method", 
@@ -59,7 +60,10 @@ MaxAmpSim <- function(x, N, m, filename) {
                                                 "Monte Carlo Estimate"))
     plot <- plot + theme(axis.text.x=element_text(angle=45))
     plot <- plot + theme_bw()
-    plot <- plot + theme(panel.border=element_blank(), 
+    plot <- plot + theme(axis.text=element_text(size=20),
+                         axis.title=element_text(size=20),
+                         legend.text=element_text(size=20),
+                         panel.border=element_blank(), 
                          panel.grid.major=element_blank(),
                          panel.grid.minor=element_blank(), 
                          axis.line=element_line(colour = "black"))
@@ -85,6 +89,7 @@ PlotResults <- function(results, filename) {
                    val=c(results$prob, results$mc.est))
   plot <- ggplot(df, aes(color=type, alpha=type))
   plot <- plot + geom_line(aes(x=trials, y=val))
+  plot <- plot + expand_limits(y=0)
   plot <- plot + labs(title="Bounds on Tail Probabilities", x="N", 
                       y="Probability")
   plot <- plot + scale_color_discrete(name="Bounding Method", 
@@ -96,6 +101,7 @@ PlotResults <- function(results, filename) {
   plot <- plot + theme_bw()
   plot <- plot + theme(axis.text=element_text(size=20),
                        axis.title=element_text(size=20),
+                       legend.text=element_text(size=20),
                        panel.border=element_blank(), 
                        panel.grid.major=element_blank(),
                        panel.grid.minor=element_blank(), 
@@ -114,7 +120,7 @@ file.names <- dir("data/epsp-data/", pattern="*.csv")
 maxN = 12
 folder.plots <- "./plots/epsp-binomial/mome/max-amp-sim-first-col/"
 
-aggregate_data <- data.frame(ratio=c())
+aggregate_data <- data.frame()
 for (i in 1:length(file.names)) {
   filename <- file.names[i]
   fileroot <- FileRoot(filename)
@@ -129,10 +135,22 @@ for (i in 1:length(file.names)) {
     # Analysis for just the first column
     x <- unlist(file[1])
     results[[N]] <- MaxAmpSim(x, N, 100000)
+    ratio <- data.frame(ratio=results[[N]]$mc.est / results[[N]]$prob,
+                        N=N, cell=fileroot)
+    aggregate_data <- rbind(aggregate_data, ratio)
   }
   PlotResults(results, paste(folder.plots, fileroot, ".pdf", sep=""))
-  print(data.frame(ratio=results$mc.est / results$prob))
-  aggregate_data <- rbind(aggregate_data, 
-                          data.frame(ratio=results$mc.est / results$prob))
 }
-print(aggregate_data)
+plot <- ggplot(aggregate_data, aes(color=cell, x=N, y=ratio))
+plot <- plot + geom_line()
+plot <- plot + labs(title="Ratio of Monte Carlo vs Observed Probabilities",
+                    x="N", y="Ratio")
+plot <- plot + scale_x_discrete(limits=1:maxN)
+plot <- plot + theme_bw()
+plot <- plot + theme(axis.text=element_text(size=20),
+                     axis.title=element_text(size=20),
+                     panel.border=element_blank(), 
+                     panel.grid.major=element_blank(),
+                     panel.grid.minor=element_blank(), 
+                     axis.line=element_line(colour = "black"))
+ggsave("./plots/epsp-binomial/mome/max-amp-sim-first-col.pdf")
