@@ -16,7 +16,7 @@ Title <- function(fileroot) {
   paste("Heatmap of ", fileroot, sep="")
 }
 FileName <- function(fileroot) {
-  paste("plots/heatmaps/", fileroot, ".pdf", sep="")
+  paste("plots/heatmaps/", fileroot, "-scaled.pdf", sep="")
 }
 
 for (i in 1:length(file.names)) {
@@ -38,7 +38,8 @@ for (i in 1:length(file.names)) {
   plot <- plot + labs(x="Spike Number", y="Sweep")
   plot <- plot + scale_x_discrete(limits=1:10)
   plot <- plot + scale_fill_gradientn(name="Amplitude (mV)", 
-                                      colors=matlab.like(1000))
+                                      colors=matlab.like(1000),
+                                      limits=c(0,7))
   plot <- plot + theme_bw()
   plot <- plot + theme(axis.text=element_text(size=20),
                        axis.title=element_text(size=20),
