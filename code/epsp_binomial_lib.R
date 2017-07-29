@@ -6,6 +6,7 @@
 setwd("~/Dropbox/carnegie_mellon/research/neuro-summer-2017/")
 library(ggplot2)
 library(functional)
+library(Rcpp)
 source("./code/filenames.R")
 
 SampleFailureRate <- function(x.data) {
@@ -30,13 +31,12 @@ SampleFailureRate <- function(x.data) {
   return(x.fail.count / n)
 }
 
-MOME.Binomial <- function(x.data, N, p) {
+MOME.Binomial <- function(x.data, N) {
   # Returns the method of moments estimate for the parameters of the model. 
   #
   # Args: 
   #   x.data: The n data points. 
   #   N: The number of assumed synaptic contact points. 
-  #   p: An estimator for p. 
   #
   # Returns:
   #   theta: The method of moments estimate with estimates contained in
@@ -54,6 +54,28 @@ MOME.Binomial <- function(x.data, N, p) {
   # Estimate mu and sigma
   theta$mu <- d - c
   theta$sigma <- 2*c - d
+  return(theta)
+}
+
+MLE.SingleContact <- function(x.data) {
+  # Returns the MLE estimate for the parameters of the model with N = 1.
+  #
+  # Args: 
+  #   x.data: The n data points. 
+  #
+  # Returns:
+  #   theta: The method of moments estimate with estimates contained in
+  #     theta$mu, theta$sigma, and theta$p. 
+  
+  theta = list()
+  # Estimate p
+  p.fail <- SampleFailureRate(x.data)
+  theta$p <- 1 - p.fail
+  # Take log of nonzero
+  lognonzero <- log(x.data[x.data>0])
+  # Estimate mu and sigma
+  theta$mu = mean(lognonzero)
+  theta$sigma = var(lognonzero)
   return(theta)
 }
 
