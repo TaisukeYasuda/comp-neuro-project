@@ -146,7 +146,7 @@ for (i in 1:length(file.names)) {
     x <- unlist(file[1])
     
     results[[N]] <- MaxAmpSim(x, N, 100000)
-    ratio <- data.frame(ratio=results[[N]]$mc.est / results[[N]]$prob,
+    ratio <- data.frame(ratio=results[[N]]$prob / results[[N]]$mc.est,
                         N=N, cell=fileroot)
     aggregate_data <- rbind(aggregate_data, ratio)
   }
@@ -164,6 +164,5 @@ plot <- plot + theme(axis.text=element_text(size=20),
                      panel.grid.major=element_blank(),
                      panel.grid.minor=element_blank(), 
                      axis.line=element_line(colour = "black"))
+plot <- plot + expand_limits(y=0)
 ggsave("./plots/epsp-binomial/mome/max-amp-sim-first-col-sim-n=5.pdf")
-plot <- plot + coord_cartesian(ylim=c(0,3))
-ggsave("./plots/epsp-binomial/mome/max-amp-sim-first-col-sim-n=5-scaled.pdf")

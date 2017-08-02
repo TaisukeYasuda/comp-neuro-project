@@ -27,7 +27,8 @@ PlotMLE <- function(x, filename) {
     df <- data.frame(data=x)
     plot <- ggplot(df, aes(x=data)) + geom_histogram(alpha=0.5, aes(y=..density..), 
                                                      position='identity')
-    plot <- plot + labs(title=paste("Inference with N = 1 for", fileroot))
+    plot <- plot + labs(title=paste("Inference with N = 1 for", fileroot),
+                        y="Density", x="Amplitude (mV)")
     x <- seq(0, 5, 0.01)
     y <- dlnorm(x, theta.hat$mu, sqrt(theta.hat$sigma)) * theta.hat$p
     plot <- plot + geom_line(data=data.frame(x=x, y=y), aes(x=x, y=y))
@@ -61,7 +62,8 @@ PlotMOME <- function(x, filename) {
     df <- data.frame(data=x)
     plot <- ggplot(df, aes(x=data)) + geom_histogram(alpha=0.5, aes(y=..density..), 
                                                      position='identity')
-    plot <- plot + labs(title=paste("Inference with N = 1 for", fileroot))
+    plot <- plot + labs(title=paste("Inference with N = 1 for", fileroot),
+                        y="Density", x="Amplitude (mV)")
     x <- seq(0, 5, 0.01)
     y <- dlnorm(x, theta.hat$mu, sqrt(theta.hat$sigma)) * theta.hat$p
     plot <- plot + geom_line(data=data.frame(x=x, y=y), aes(x=x, y=y))
