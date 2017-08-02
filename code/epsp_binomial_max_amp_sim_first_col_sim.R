@@ -136,6 +136,10 @@ for (i in 1:length(file.names)) {
   theta.hat <- MOME.Binomial(x, 5)
   file[1] <- EPSP.Binomial(theta.hat, 5, n)
   
+  sim.data <- data.frame(x=unlist(file[1]))
+  ggplot(sim.data, aes(x=x)) + geom_histogram()
+  ggsave(paste(folder.plots, "histograms/", fileroot, "-sim-n=5.pdf", sep=""))
+  
   results <- list()
   for (N in 1:maxN) {
     # Analysis for just the first column
