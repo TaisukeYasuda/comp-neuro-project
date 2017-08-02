@@ -38,7 +38,7 @@ for (i in 1:length(file.names)) {
                        panel.grid.major=element_blank(),
                        panel.grid.minor=element_blank(), 
                        axis.line=element_line(colour = "black"))
-  ggsave(FileName(fileroot))
+  ggsave(FileName(fileroot), units="in", width=7, height=5)
 }
 print(plot)
 
