@@ -57,6 +57,28 @@ MOME.Binomial <- function(x.data, N) {
   return(theta)
 }
 
+MOME.SimpleBinomial <- function(x.data, N) {
+  # Returns the method of moments estimate for the parameters of the simple 
+  # binomial model. 
+  #
+  # Args: 
+  #   x.data: The n data points. 
+  #   N: The number of assumed synaptic contact points. 
+  #
+  # Returns:
+  #   theta: The method of moments estimate with estimates contained in
+  #     theta$mu, theta$sigma, and theta$p. 
+  
+  theta = list()
+  # Estimate p
+  p.fail <- SampleFailureRate(x.data)
+  theta$p <- 1 - p.fail^(1/N)
+  # Estimate mu and sigma
+  theta$mu <- mean(x.data) / (N * theta$p)
+  theta$sigma <- var(x.data) / (N * theta$p)
+  return(theta)
+}
+
 MLE.SingleContact <- function(x.data) {
   # Returns the MLE estimate for the parameters of the model with N = 1.
   #
@@ -101,6 +123,60 @@ EPSP.Binomial <- function(theta, N, n) {
       }
     }
     return(sum(apply(array(Y), 1, NormalIfRelease)))
+  }
+  x = rep(0, n)
+  return(apply(array(x), 1, SingleTrial))
+}
+
+EPSP.SimpleBinomial <- function(theta, N, n) {
+  # Samples n data points from an EPSP model with parameters mu, sigma, p, and
+  # N. 
+  # 
+  # Args:
+  #   theta: Current parameter estimates. 
+  #   N: The number of synaptic contacts. 
+  #   n: The number of points to sample. 
+  # 
+  # Returns:
+  #   x: The vector of points sampled from the simple binomial model. 
+  
+  SingleTrial <- function(dummy) {
+    Y = rbinom(N, 1, theta$p)
+    MuIfRelease <- function(y) {
+      if (y==1) {
+        return(theta$mu)
+      } else {
+        return(0)
+      }
+    }
+    return(sum(apply(array(Y), 1, MuIfRelease)))
+  }
+  x = rep(0, n)
+  return(apply(array(x), 1, SingleTrial))
+}
+
+EPSP.BinomialUniform <- function(theta, N, n) {
+  # Samples n data points from an EPSP model with parameters mu, width, p, and
+  # N. 
+  # 
+  # Args:
+  #   theta: Current parameter estimates. 
+  #   N: The number of synaptic contacts. 
+  #   n: The number of points to sample. 
+  # 
+  # Returns:
+  #   x: The vector of points sampled from the simple binomial model. 
+  
+  SingleTrial <- function(dummy) {
+    Y = rbinom(N, 1, theta$p)
+    UnifIfRelease <- function(y) {
+      if (y==1) {
+        return(runif(1, theta$mu-theta$width, theta$mu+theta$width))
+      } else {
+        return(0)
+      }
+    }
+    return(sum(apply(array(Y), 1, UnifIfRelease)))
   }
   x = rep(0, n)
   return(apply(array(x), 1, SingleTrial))

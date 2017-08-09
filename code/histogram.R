@@ -29,8 +29,9 @@ for (i in 1:length(file.names)) {
   
   # Plot the histogram
   plot <- ggplot(data.frame("data"=unlist(file[cols])), aes(x=data))
-  plot <- plot + geom_histogram() + ggtitle(Title(fileroot))
-  plot <- plot + labs(x="Amplitude (mV)", y="Count")
+  plot <- plot + geom_histogram(binwidth=0.05)
+  # plot <- plot + ggtitle(Title(fileroot))
+  plot <- plot + labs(x="Amplitude (mV)", y="Number of \n Observed Amplitudes")
   plot <- plot + theme_bw()
   plot <- plot + theme(axis.text=element_text(size=30),
                        axis.title=element_text(size=30),
@@ -39,6 +40,9 @@ for (i in 1:length(file.names)) {
                        panel.grid.minor=element_blank(), 
                        axis.line=element_line(colour = "black"))
   ggsave(FileName(fileroot), units="in", width=7, height=5)
+  plot <- plot + coord_cartesian(xlim=c(0,2.5))
+  ggsave(paste("plots/histogram-first-col/", fileroot, "-scaled.pdf", sep=""),
+         units="in", width=7, height=5)
 }
 print(plot)
 

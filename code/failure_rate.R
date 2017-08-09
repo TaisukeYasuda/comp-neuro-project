@@ -18,6 +18,8 @@ FileName <- function(fileroot) {
   paste("plots/failure-rates/", fileroot, ".pdf", sep="")
 }
 
+dot.size = 8
+
 aggregate_data <- data.frame()
 for (i in 1:length(file.names)) {
   # Read the data
@@ -37,7 +39,8 @@ for (i in 1:length(file.names)) {
   
   # Plot the failure rates
   plot <- ggplot(data.frame("fail"=fail, "spikes"=1:10), aes(x=spikes, y=fail))
-  plot <- plot + geom_line() + labs(title=Title(fileroot), x="Spike Number", 
+  plot <- plot + geom_line() + labs(title=Title(fileroot),
+                                    x="Stimulus Spike Number", 
                                     y="Failure Rate")
   plot <- plot + scale_y_continuous(limits=c(0, 1))
   if (FALSE) {
@@ -47,11 +50,12 @@ for (i in 1:length(file.names)) {
 
 # Plot all the failure rates in one plot
 plot <- ggplot(aggregate_data, aes(x=spikes, y=fail, color=cell)) + geom_line()
-plot <- plot + geom_point(aes(x=spikes, y=fail, color=cell, size=40))
-plot <- plot + labs(title="Failure Rates over Successive Spikes", x="Spike Number", 
-                    y="Failure Rate")
+plot <- plot + geom_point(aes(x=spikes, y=fail, color=cell), size=dot.size)
+plot <- plot + labs(title="Failure Rates over Successive Spikes", 
+                    x="Stimulus Spike Number", y="Failure Rate of Response")
 plot <- plot + scale_y_continuous(limits=c(0,1))
 plot <- plot + scale_x_discrete(limits=1:10)
+plot <- plot + scale_color_discrete(guide=FALSE)
 plot <- plot + theme_bw()
 plot <- plot + theme(axis.text=element_text(size=30),
                      axis.title=element_text(size=30),
@@ -84,10 +88,8 @@ if (TRUE) {
   names(ci) <- c("ymin", "ymax")
   df <- cbind(data.frame(x=1:10, y=averages), ci)
   df <- cbind(df, stds)
-  df <- cbind(df, data.frame(dummy=c("5may2016a-ctrl", "17march2016g")))
   plot <- ggplot(df) + geom_line(aes(x=x, y=y)) + coord_cartesian("ylim"=c(0,1))
-  plot <- plot + geom_point(aes(x=x, y=y, size=40, color=dummy))
-  plot <- plot + geom_point(aes(x=x, y=y, size=40))
+  plot <- plot + geom_point(aes(x=x, y=y), size=dot.size)
   plot <- plot + scale_x_discrete(limits=1:10)
   plot <- plot + theme_bw()
   plot <- plot + theme(axis.text=element_text(size=30),
@@ -96,8 +98,9 @@ if (TRUE) {
                        panel.grid.major=element_blank(),
                        panel.grid.minor=element_blank(), 
                        axis.line=element_line(colour = "black"))
-  plot <- plot + labs(title="Average Failure Rate", x="Spike Number", 
-                      y="Failure Rate")
+  plot <- plot + labs(title="Average Failure Rate of Response", 
+                      x="Stimulus Spike Number", 
+                      y="Average Failure Rate of Response")
   write.csv(df, "stats.csv")
   ggsave("./plots/average-failure-rate.pdf", width=11, height=8, units="in")
   if (FALSE) { 
