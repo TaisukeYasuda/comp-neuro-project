@@ -39,15 +39,18 @@ PlotSim <- function(x, N, filename) {
                                 position='identity', binwidth=0.05)
   plot <- plot + labs(x="Amplitude (mV)", y="Density")
   plot <- plot + theme_bw()
-  plot <- plot + theme(panel.border=element_blank(), 
+  plot <- plot + theme(axis.text=element_text(size=20),
+                       axis.title=element_text(size=20),
+                       legend.text=element_text(size=13),
+                       panel.border=element_blank(), 
                        panel.grid.major=element_blank(),
                        panel.grid.minor=element_blank(), 
                        axis.line=element_line(colour = "black"))
   filename.N <- paste(folder.cell, "N=", N, ".pdf", sep="")
-  ggsave(filename.N)
+  ggsave(filename.N, units="in", width=7, height=5)
   plot <- plot + coord_cartesian(ylim=c(0,5))
   filename.N <- paste(folder.cell, "N=", N, "-zoom.pdf", sep="")
-  ggsave(filename.N)
+  ggsave(filename.N, units="in", width=7, height=5)
 }
 
 # Script
